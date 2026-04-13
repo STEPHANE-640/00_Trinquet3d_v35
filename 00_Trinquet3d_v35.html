@@ -73,33 +73,62 @@
   /* ── Layout sandwich ── */
   #editor .sandwich { display: flex; gap: 6px; align-items: stretch; }
 
-  /* ── Colonnes boutons verticaux ── */
+  /* ── Colonnes curseurs verticaux ── */
   #editor .vert-col {
     display: flex; flex-direction: column; align-items: center;
-    gap: 5px; background: #1a1e2a; border-radius: 9px;
-    padding: 9px 4px; flex: 0 0 28px;
+    gap: 4px; background: #161920; border-radius: 9px;
+    padding: 8px 5px; flex: 0 0 26px;
+    border: 0.5px solid #22263a;
   }
   #editor .vert-col .col-lbl {
     writing-mode: vertical-rl; text-orientation: mixed;
     transform: rotate(180deg);
-    font-size: .60rem; color: #566080; letter-spacing: .06em;
+    font-size: .58rem; color: #566080; letter-spacing: .06em;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  #editor .vert-col .extremity {
+    font-size: .65rem; color: #3a4560; font-weight: 700;
+    line-height: 1; flex-shrink: 0; user-select: none;
+    width: 16px; text-align: center;
+  }
+  /* Zone piste verticale — centrée */
+  #editor .v-range-wrap {
     flex: 1; display: flex; align-items: center; justify-content: center;
+    min-height: 70px;
   }
-  #editor .vert-col .col-val {
-    font-size: .60rem; color: #7ec8ff; font-weight: 600;
-    font-variant-numeric: tabular-nums; text-align: center; line-height: 1.2;
+  #editor .v-range-wrap input[type=range] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 80px;
+    background: transparent; border: none; outline: none;
+    cursor: pointer; padding: 0; margin: 0;
   }
-  #editor .pm {
-    width: 22px; height: 22px; border-radius: 6px;
-    background: #1e2235; border: 0.5px solid #2e3348;
-    color: #8090b0; font-size: 15px; font-weight: 300;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; flex-shrink: 0; user-select: none;
-    transition: background .1s; line-height: 1;
+  #editor .v-range-wrap input[type=range]::-webkit-slider-container {
+    align-items: center;
   }
-  #editor .pm:hover { background: #2e3555; color: #c0d0e8; }
+  #editor .v-range-wrap input[type=range]::-webkit-slider-runnable-track {
+    width: 3px; background: #252840; border-radius: 2px;
+  }
+  /* Thumb rectangulaire horizontal — distinct des sliders ronds */
+  #editor .v-range-wrap input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 5px;
+    border-radius: 2px;
+    background: #7ec8ff;
+    cursor: pointer; border: none;
+    margin-left: -6px;
+    transform: translateX(0);
+  }
+  #editor .v-range-wrap input[type=range]::-moz-range-track {
+    width: 3px; background: #252840; border-radius: 2px;
+  }
+  #editor .v-range-wrap input[type=range]::-moz-range-thumb {
+    width: 16px; height: 5px; border-radius: 2px;
+    background: #7ec8ff; border: none; cursor: pointer;
+  }
 
-  /* ── Sliders (centre) ── */
+  /* ── Sliders horizontaux (centre) ── */
   #editor .sliders-col { flex: 1; }
   #editor .grp { margin-top: 0; }
   #editor .grp-label {
@@ -124,12 +153,13 @@
     height: 5px; border-radius: 3px; background: #252840; border: none; padding: 0;
     cursor: pointer; outline: none;
   }
+  /* Thumb réduit à 16px */
   #editor .srow input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
     background: #7ec8ff; cursor: pointer; border: 2px solid #12141c;
   }
   #editor .srow input[type=range]::-moz-range-thumb {
-    width: 24px; height: 24px; border-radius: 50%;
+    width: 16px; height: 16px; border-radius: 50%;
     background: #7ec8ff; border: 2px solid #12141c; cursor: pointer;
   }
 
@@ -279,12 +309,14 @@
 
   <div class="sandwich">
 
-    <!-- ── GAUCHE : Puissance ── -->
+    <!-- ── GAUCHE : Puissance (curseur vertical) ── -->
     <div class="vert-col">
-      <div class="pm" id="pm_str_up">+</div>
-      <span class="col-val" id="sv_strength">20.0</span>
-      <span class="col-lbl">Puissance</span>
-      <div class="pm" id="pm_str_dn">−</div>
+      <div class="col-lbl">Puissance</div>
+      <div class="extremity">+</div>
+      <div class="v-range-wrap">
+        <input id="sl_strength" type="range" min="15" max="30" step="0.5" value="20">
+      </div>
+      <div class="extremity">−</div>
     </div>
 
     <!-- ── CENTRE : Sliders position + direction ── -->
@@ -313,12 +345,14 @@
       </div>
     </div>
 
-    <!-- ── DROITE : Hauteur de frappe ── -->
+    <!-- ── DROITE : H. de frappe (curseur vertical) ── -->
     <div class="vert-col">
-      <div class="pm" id="pm_y_up">+</div>
-      <span class="col-val" id="sv_pos_y">0.80m</span>
-      <span class="col-lbl">H. de frappe</span>
-      <div class="pm" id="pm_y_dn">−</div>
+      <div class="col-lbl">H. de frappe</div>
+      <div class="extremity">+</div>
+      <div class="v-range-wrap">
+        <input id="sl_pos_y" type="range" min="0.5" max="1.7" step="0.05" value="0.8">
+      </div>
+      <div class="extremity">−</div>
     </div>
 
   </div>
@@ -1535,36 +1569,37 @@ function syncEditorFromShot() {
   const py = clamp(editorShot.pos[1], 0.5, 1.7);
   const ah = clamp(editorShot.horiz, -90, 90);
   const av = clamp(editorShot.vert, 0, 60);
-  const st = clamp(editorShot.strength, 10, 30);
+  const st = clamp(editorShot.strength, 15, 30);
 
-  const setSlider = (slId, valId, val, suffix) => {
-    document.getElementById(slId).value = val;
-    document.getElementById(valId).textContent = val.toFixed(suffix === '°' ? 0 : 1) + suffix;
+  const set = (slId, valId, val, suffix) => {
+    const el = document.getElementById(slId);
+    if (el) el.value = val;
+    const vl = document.getElementById(valId);
+    if (vl) vl.textContent = val.toFixed(suffix === '°' ? 0 : 1) + suffix;
   };
 
-  setSlider('sl_pos_x', 'sv_pos_x', px, ' m');
-  setSlider('sl_pos_z', 'sv_pos_z', pz, ' m');
-  setSlider('sl_angle_h', 'sv_angle_h', ah, '°');
-  setSlider('sl_angle_v', 'sv_angle_v', av, '°');
+  set('sl_pos_x', 'sv_pos_x', px, ' m');
+  set('sl_pos_z', 'sv_pos_z', pz, ' m');
+  const elY = document.getElementById('sl_pos_y');
+  if (elY) elY.value = py;
+  const elS = document.getElementById('sl_strength');
+  if (elS) elS.value = st;
 
-  // Boutons : mise à jour des variables internes + affichage
-  _edPosY = py;
-  _edStrength = st;
-  document.getElementById('sv_pos_y').textContent = py.toFixed(2) + 'm';
-  document.getElementById('sv_strength').textContent = st.toFixed(1);
+  set('sl_angle_h', 'sv_angle_h', ah, '°');
+  set('sl_angle_v', 'sv_angle_v', av, '°');
 
   updateMinimap(px, pz);
   updateArrow(editorShot);
 }
 
-// Lit les sliders + boutons → écrit dans editorShot UNIQUEMENT
+// Lit les sliders → écrit dans editorShot UNIQUEMENT
 function pullEditorValues() {
   if (!editorShot) return null;
   const g = id => parseFloat(document.getElementById(id).value);
-  editorShot.pos = [ g('sl_pos_x'), _edPosY, g('sl_pos_z') ];
+  editorShot.pos = [ g('sl_pos_x'), g('sl_pos_y'), g('sl_pos_z') ];
   editorShot.horiz    = g('sl_angle_h');
   editorShot.vert     = g('sl_angle_v');
-  editorShot.strength = Math.max(10, _edStrength);
+  editorShot.strength = Math.max(15, g('sl_strength'));
   const pp = editorShot.pos;
   playerBody.position.set(pp[0], 0.68, pp[2]);
   playerHead.position.set(pp[0], 1.54, pp[2]);
@@ -1817,34 +1852,14 @@ function updateMinimap(x, z) {
   dot.style.top  = pz.toFixed(1) + '%';
 }
 
-// ── Variables internes pour les boutons +/− ──
-let _edPosY     = 0.80;
-let _edStrength = 20.0;
-
-function _adjBtn(key, step, min, max) {
-  if (key === 'y') {
-    _edPosY = Math.min(max, Math.max(min, Math.round((_edPosY + step) * 1000) / 1000));
-    document.getElementById('sv_pos_y').textContent = _edPosY.toFixed(2) + 'm';
-  } else {
-    _edStrength = Math.min(max, Math.max(min, Math.round((_edStrength + step) * 10) / 10));
-    document.getElementById('sv_strength').textContent = _edStrength.toFixed(1);
-  }
-  pullEditorValues();
-  scheduleLiveApply();
-}
-
-document.getElementById('pm_y_up').addEventListener('click', () => _adjBtn('y', +0.05, 0.5, 1.7));
-document.getElementById('pm_y_dn').addEventListener('click', () => _adjBtn('y', -0.05, 0.5, 1.7));
-document.getElementById('pm_str_up').addEventListener('click', () => _adjBtn('s', +0.5, 10, 30));
-document.getElementById('pm_str_dn').addEventListener('click', () => _adjBtn('s', -0.5, 10, 30));
-
 // ── Listeners sliders ──
 function sliderInput(slId, valId, suffix, decimals) {
   const sl = document.getElementById(slId);
-  const vl = document.getElementById(valId);
+  if (!sl) return;
+  const vl = valId ? document.getElementById(valId) : null;
   sl.addEventListener('input', () => {
     const v = parseFloat(sl.value);
-    vl.textContent = v.toFixed(decimals) + suffix;
+    if (vl) vl.textContent = v.toFixed(decimals) + suffix;
     if (slId === 'sl_pos_x' || slId === 'sl_pos_z') {
       updateMinimap(
         parseFloat(document.getElementById('sl_pos_x').value),
@@ -1856,10 +1871,12 @@ function sliderInput(slId, valId, suffix, decimals) {
   });
 }
 
-sliderInput('sl_pos_x',   'sv_pos_x',   ' m', 1);
-sliderInput('sl_pos_z',   'sv_pos_z',   ' m', 1);
-sliderInput('sl_angle_h', 'sv_angle_h', '°',  0);
-sliderInput('sl_angle_v', 'sv_angle_v', '°',  0);
+sliderInput('sl_pos_x',    'sv_pos_x',   ' m', 1);
+sliderInput('sl_pos_z',    'sv_pos_z',   ' m', 1);
+sliderInput('sl_pos_y',    null,         '',   2);
+sliderInput('sl_angle_h',  'sv_angle_h', '°',  0);
+sliderInput('sl_angle_v',  'sv_angle_v', '°',  0);
+sliderInput('sl_strength', null,         '',   1);
 
 // ── Boucle de rendu ──
 const clock = new THREE.Clock();
