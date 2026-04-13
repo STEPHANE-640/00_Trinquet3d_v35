@@ -62,39 +62,75 @@
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
   #editor {
-    position: fixed; right: 12px; bottom: 12px; width: 310px;
+    position: fixed; right: 12px; bottom: 12px; width: 320px;
     border: 1px solid #2a2d38; border-radius: 10px; background: #12141cdd;
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     padding: 10px 12px; z-index: 10; display: none;
   }
   #editor.visible { display: block; }
-  #editor .etitle { color: #ccd5e5; font-size: .78rem; font-weight: 600; margin-bottom: 6px; }
-  #editor .grp { margin-top: 14px; }
+  #editor .etitle { color: #ccd5e5; font-size: .78rem; font-weight: 600; margin-bottom: 8px; }
+
+  /* ── Layout sandwich ── */
+  #editor .sandwich { display: flex; gap: 6px; align-items: stretch; }
+
+  /* ── Colonnes boutons verticaux ── */
+  #editor .vert-col {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 5px; background: #1a1e2a; border-radius: 9px;
+    padding: 9px 4px; flex: 0 0 28px;
+  }
+  #editor .vert-col .col-lbl {
+    writing-mode: vertical-rl; text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: .60rem; color: #566080; letter-spacing: .06em;
+    flex: 1; display: flex; align-items: center; justify-content: center;
+  }
+  #editor .vert-col .col-val {
+    font-size: .60rem; color: #7ec8ff; font-weight: 600;
+    font-variant-numeric: tabular-nums; text-align: center; line-height: 1.2;
+  }
+  #editor .pm {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: #1e2235; border: 0.5px solid #2e3348;
+    color: #8090b0; font-size: 15px; font-weight: 300;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; user-select: none;
+    transition: background .1s; line-height: 1;
+  }
+  #editor .pm:hover { background: #2e3555; color: #c0d0e8; }
+
+  /* ── Sliders (centre) ── */
+  #editor .sliders-col { flex: 1; }
+  #editor .grp { margin-top: 0; }
   #editor .grp-label {
     font-size: .60rem; font-weight: 700; color: #4a5575;
-    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px;
-    padding-bottom: 4px; border-bottom: 1px solid #1e2238;
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 7px;
+    margin-top: 14px; padding-bottom: 4px; border-bottom: 1px solid #1e2238;
   }
-  #editor .srow { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  #editor .grp:first-child .grp-label { margin-top: 0; }
+  #editor .srow { margin-bottom: 15px; }
+  #editor .srow:last-child { margin-bottom: 0; }
   #editor .srow .slabel {
-    font-size: .67rem; color: #8090b0; flex: 0 0 130px; white-space: nowrap;
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: .67rem; color: #8090b0; margin-bottom: 6px;
   }
   #editor .srow .slabel .sval {
-    font-size: .70rem; font-weight: 600; color: #c0d4f0;
-    font-variant-numeric: tabular-nums; margin-left: 3px;
+    font-size: .70rem; font-weight: 600; color: #7ec8ff;
+    font-variant-numeric: tabular-nums;
   }
   #editor .srow input[type=range] {
-    flex: 1; -webkit-appearance: none; appearance: none;
-    height: 3px; border-radius: 2px; background: #252840; border: none; padding: 0;
+    width: 100%; display: block;
+    -webkit-appearance: none; appearance: none;
+    height: 5px; border-radius: 3px; background: #252840; border: none; padding: 0;
     cursor: pointer; outline: none;
   }
   #editor .srow input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 13px; height: 13px; border-radius: 50%;
-    background: #7ec8ff; cursor: pointer; border: none;
+    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+    background: #7ec8ff; cursor: pointer; border: 2px solid #12141c;
   }
   #editor .srow input[type=range]::-moz-range-thumb {
-    width: 13px; height: 13px; border-radius: 50%;
-    background: #7ec8ff; border: none; cursor: pointer;
+    width: 24px; height: 24px; border-radius: 50%;
+    background: #7ec8ff; border: 2px solid #12141c; cursor: pointer;
   }
 
   /* boutons */
@@ -241,45 +277,50 @@
 <div id="editor">
   <div class="etitle">Simuler vos coups</div>
 
-  <!-- ── Groupe 1 : Position du joueur ── -->
-  <div class="grp">
-    <div class="grp-label">📍 Position du joueur</div>
+  <div class="sandwich">
 
+    <!-- ── GAUCHE : Puissance ── -->
+    <div class="vert-col">
+      <div class="pm" id="pm_str_up">+</div>
+      <span class="col-val" id="sv_strength">20.0</span>
+      <span class="col-lbl">Puissance</span>
+      <div class="pm" id="pm_str_dn">−</div>
+    </div>
 
-    <div class="srow">
-      <span class="slabel">Frontis↔Rebote <span class="sval" id="sv_pos_x">15.5 m</span></span>
-      <input id="sl_pos_x" type="range" min="1" max="26.2" step="0.1" value="15.5">
+    <!-- ── CENTRE : Sliders position + direction ── -->
+    <div class="sliders-col">
+      <div class="grp">
+        <div class="grp-label">📍 Position du joueur</div>
+        <div class="srow">
+          <span class="slabel">Frontis↔Rebote <span class="sval" id="sv_pos_x">15.5 m</span></span>
+          <input id="sl_pos_x" type="range" min="1" max="26.2" step="0.1" value="15.5">
+        </div>
+        <div class="srow">
+          <span class="slabel">Vitre↔Filet G. <span class="sval" id="sv_pos_z">5.0 m</span></span>
+          <input id="sl_pos_z" type="range" min="0.5" max="7" step="0.1" value="5">
+        </div>
+      </div>
+      <div class="grp">
+        <div class="grp-label">🎯 Direction du coup</div>
+        <div class="srow">
+          <span class="slabel">Horizontal <span class="sval" id="sv_angle_h">7°</span></span>
+          <input id="sl_angle_h" type="range" min="-90" max="90" step="1" value="7">
+        </div>
+        <div class="srow">
+          <span class="slabel">Vertical <span class="sval" id="sv_angle_v">25°</span></span>
+          <input id="sl_angle_v" type="range" min="0" max="60" step="1" value="25">
+        </div>
+      </div>
     </div>
-    <div class="srow">
-      <span class="slabel">Vitre↔Filet G. <span class="sval" id="sv_pos_z">5.0 m</span></span>
-      <input id="sl_pos_z" type="range" min="0.5" max="7" step="0.1" value="5">
-    </div>
-    <div class="srow">
-      <span class="slabel">Hauteur de frappe <span class="sval" id="sv_pos_y">0.8 m</span></span>
-      <input id="sl_pos_y" type="range" min="0.5" max="1.7" step="0.05" value="0.8">
-    </div>
-  </div>
 
-  <!-- ── Groupe 2 : Direction ── -->
-  <div class="grp">
-    <div class="grp-label">🎯 Direction du coup</div>
-    <div class="srow">
-      <span class="slabel">Horizontal <span class="sval" id="sv_angle_h">7°</span></span>
-      <input id="sl_angle_h" type="range" min="-90" max="90" step="1" value="7">
+    <!-- ── DROITE : Hauteur de frappe ── -->
+    <div class="vert-col">
+      <div class="pm" id="pm_y_up">+</div>
+      <span class="col-val" id="sv_pos_y">0.80m</span>
+      <span class="col-lbl">H. de frappe</span>
+      <div class="pm" id="pm_y_dn">−</div>
     </div>
-    <div class="srow">
-      <span class="slabel">Vertical <span class="sval" id="sv_angle_v">25°</span></span>
-      <input id="sl_angle_v" type="range" min="0" max="60" step="1" value="25">
-    </div>
-  </div>
 
-  <!-- ── Groupe 3 : Puissance ── -->
-  <div class="grp">
-    <div class="grp-label">💥 Puissance</div>
-    <div class="srow">
-      <span class="slabel">Intensité <span class="sval" id="sv_strength">20</span></span>
-      <input id="sl_strength" type="range" min="10" max="30" step="0.5" value="20">
-    </div>
   </div>
 
   <!-- ── Boutons ── -->
@@ -1496,30 +1537,34 @@ function syncEditorFromShot() {
   const av = clamp(editorShot.vert, 0, 60);
   const st = clamp(editorShot.strength, 10, 30);
 
-  const set = (slId, valId, val, suffix) => {
+  const setSlider = (slId, valId, val, suffix) => {
     document.getElementById(slId).value = val;
-    document.getElementById(valId).textContent = val.toFixed(suffix === '°' ? 0 : (suffix === ' m' ? 1 : 1)) + suffix;
+    document.getElementById(valId).textContent = val.toFixed(suffix === '°' ? 0 : 1) + suffix;
   };
 
-  set('sl_pos_x', 'sv_pos_x', px, ' m');
-  set('sl_pos_z', 'sv_pos_z', pz, ' m');
-  set('sl_pos_y', 'sv_pos_y', py, ' m');
-  set('sl_angle_h', 'sv_angle_h', ah, '°');
-  set('sl_angle_v', 'sv_angle_v', av, '°');
-  set('sl_strength', 'sv_strength', st, '');
+  setSlider('sl_pos_x', 'sv_pos_x', px, ' m');
+  setSlider('sl_pos_z', 'sv_pos_z', pz, ' m');
+  setSlider('sl_angle_h', 'sv_angle_h', ah, '°');
+  setSlider('sl_angle_v', 'sv_angle_v', av, '°');
+
+  // Boutons : mise à jour des variables internes + affichage
+  _edPosY = py;
+  _edStrength = st;
+  document.getElementById('sv_pos_y').textContent = py.toFixed(2) + 'm';
+  document.getElementById('sv_strength').textContent = st.toFixed(1);
 
   updateMinimap(px, pz);
   updateArrow(editorShot);
 }
 
-// Lit les sliders → écrit dans editorShot UNIQUEMENT
+// Lit les sliders + boutons → écrit dans editorShot UNIQUEMENT
 function pullEditorValues() {
   if (!editorShot) return null;
   const g = id => parseFloat(document.getElementById(id).value);
-  editorShot.pos = [ g('sl_pos_x'), g('sl_pos_y'), g('sl_pos_z') ];
+  editorShot.pos = [ g('sl_pos_x'), _edPosY, g('sl_pos_z') ];
   editorShot.horiz    = g('sl_angle_h');
   editorShot.vert     = g('sl_angle_v');
-  editorShot.strength = Math.max(10, g('sl_strength'));
+  editorShot.strength = Math.max(10, _edStrength);
   const pp = editorShot.pos;
   playerBody.position.set(pp[0], 0.68, pp[2]);
   playerHead.position.set(pp[0], 1.54, pp[2]);
@@ -1772,6 +1817,27 @@ function updateMinimap(x, z) {
   dot.style.top  = pz.toFixed(1) + '%';
 }
 
+// ── Variables internes pour les boutons +/− ──
+let _edPosY     = 0.80;
+let _edStrength = 20.0;
+
+function _adjBtn(key, step, min, max) {
+  if (key === 'y') {
+    _edPosY = Math.min(max, Math.max(min, Math.round((_edPosY + step) * 1000) / 1000));
+    document.getElementById('sv_pos_y').textContent = _edPosY.toFixed(2) + 'm';
+  } else {
+    _edStrength = Math.min(max, Math.max(min, Math.round((_edStrength + step) * 10) / 10));
+    document.getElementById('sv_strength').textContent = _edStrength.toFixed(1);
+  }
+  pullEditorValues();
+  scheduleLiveApply();
+}
+
+document.getElementById('pm_y_up').addEventListener('click', () => _adjBtn('y', +0.05, 0.5, 1.7));
+document.getElementById('pm_y_dn').addEventListener('click', () => _adjBtn('y', -0.05, 0.5, 1.7));
+document.getElementById('pm_str_up').addEventListener('click', () => _adjBtn('s', +0.5, 10, 30));
+document.getElementById('pm_str_dn').addEventListener('click', () => _adjBtn('s', -0.5, 10, 30));
+
 // ── Listeners sliders ──
 function sliderInput(slId, valId, suffix, decimals) {
   const sl = document.getElementById(slId);
@@ -1792,10 +1858,8 @@ function sliderInput(slId, valId, suffix, decimals) {
 
 sliderInput('sl_pos_x',   'sv_pos_x',   ' m', 1);
 sliderInput('sl_pos_z',   'sv_pos_z',   ' m', 1);
-sliderInput('sl_pos_y',   'sv_pos_y',   ' m', 2);
 sliderInput('sl_angle_h', 'sv_angle_h', '°',  0);
 sliderInput('sl_angle_v', 'sv_angle_v', '°',  0);
-sliderInput('sl_strength','sv_strength', '',   1);
 
 // ── Boucle de rendu ──
 const clock = new THREE.Clock();
