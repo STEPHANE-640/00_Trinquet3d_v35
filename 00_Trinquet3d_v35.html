@@ -91,6 +91,19 @@
     line-height: 1; flex-shrink: 0; user-select: none;
     width: 16px; text-align: center;
   }
+  /* Valeur numérique des curseurs verticaux */
+  #editor .vert-col .v-num-val {
+    font-size: .65rem; font-weight: 700; color: #7ec8ff;
+    font-variant-numeric: tabular-nums;
+    line-height: 1; flex-shrink: 0;
+    width: 100%; text-align: center;
+    letter-spacing: -.01em;
+    background: #0e111a;
+    border-radius: 4px;
+    padding: 2px 2px;
+    border: 0.5px solid #22304a;
+  }
+
   /* Zone piste verticale — centrée */
   #editor .v-range-wrap {
     flex: 1; display: flex; align-items: center; justify-content: center;
@@ -317,6 +330,7 @@
         <input id="sl_strength" type="range" min="15" max="30" step="0.5" value="20">
       </div>
       <div class="extremity">−</div>
+      <div class="v-num-val" id="sv_strength">20.0</div>
     </div>
 
     <!-- ── CENTRE : Sliders position + direction ── -->
@@ -353,6 +367,7 @@
         <input id="sl_pos_y" type="range" min="0.5" max="1.7" step="0.05" value="0.8">
       </div>
       <div class="extremity">−</div>
+      <div class="v-num-val" id="sv_pos_y">0.80m</div>
     </div>
 
   </div>
@@ -1582,8 +1597,12 @@ function syncEditorFromShot() {
   set('sl_pos_z', 'sv_pos_z', pz, ' m');
   const elY = document.getElementById('sl_pos_y');
   if (elY) elY.value = py;
+  const vlY = document.getElementById('sv_pos_y');
+  if (vlY) vlY.textContent = py.toFixed(2) + ' m';
   const elS = document.getElementById('sl_strength');
   if (elS) elS.value = st;
+  const vlS = document.getElementById('sv_strength');
+  if (vlS) vlS.textContent = st.toFixed(1);
 
   set('sl_angle_h', 'sv_angle_h', ah, '°');
   set('sl_angle_v', 'sv_angle_v', av, '°');
@@ -1873,10 +1892,10 @@ function sliderInput(slId, valId, suffix, decimals) {
 
 sliderInput('sl_pos_x',    'sv_pos_x',   ' m', 1);
 sliderInput('sl_pos_z',    'sv_pos_z',   ' m', 1);
-sliderInput('sl_pos_y',    null,         '',   2);
+sliderInput('sl_pos_y',    'sv_pos_y',   ' m', 2);
 sliderInput('sl_angle_h',  'sv_angle_h', '°',  0);
 sliderInput('sl_angle_v',  'sv_angle_v', '°',  0);
-sliderInput('sl_strength', null,         '',   1);
+sliderInput('sl_strength', 'sv_strength','',   1);
 
 // ── Boucle de rendu ──
 const clock = new THREE.Clock();
