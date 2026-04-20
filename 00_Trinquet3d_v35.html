@@ -61,26 +61,6 @@
   #dimBtn.active { border-color: #ccaa00; color: #ccaa00; }
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
-  #handToggle {
-    display: inline-flex; align-items: center; gap: 0;
-    border: 1px solid #2a2d38; border-radius: 6px; overflow: hidden;
-    background: #12141cdd; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    margin-left: 4px;
-  }
-  #handToggle .hand-lbl {
-    font-size: .7rem; color: #888; padding: 0 8px 0 10px;
-    border-right: 1px solid #2a2d38; align-self: stretch;
-    display: flex; align-items: center; letter-spacing: .02em;
-  }
-  #handToggle button.hand-btn {
-    padding: 7px 12px; border: none; background: transparent; color: #ccc;
-    cursor: pointer; font-size: .78rem; transition: all .15s;
-    border-radius: 0;
-  }
-  #handToggle button.hand-btn + button.hand-btn { border-left: 1px solid #2a2d38; }
-  #handToggle button.hand-btn:hover { background: #1e2230dd; color: #fff; }
-  #handToggle button.hand-btn.active { background: #1a1e2add; color: #ffb347; box-shadow: inset 0 0 0 1px #ffb34755; }
-
   #editor {
     position: fixed; right: 12px; bottom: 12px; width: 320px;
     border: 1px solid #2a2d38; border-radius: 10px; background: #12141cdd;
@@ -316,8 +296,6 @@
     #cameras { max-width: calc(100vw - 24px); }
     #controls { flex-wrap: wrap; max-width: calc(100vw - 24px); gap: 5px; }
     #controls button { font-size: .70rem; padding: 6px 10px; }
-    #handToggle .hand-lbl { font-size: .62rem; padding: 0 6px 0 8px; }
-    #handToggle button.hand-btn { font-size: .70rem; padding: 6px 9px; }
     #editor { width: calc(100vw - 24px); right: 12px; }
   }
 </style>
@@ -354,11 +332,6 @@
   <button id="replay">&#x25B6; Rejouer</button>
   <button id="pause">Pause</button>
   <button id="editToggle">Simuler vos coups</button>
-  <div id="handToggle" role="group" aria-label="Latéralité du joueur" title="Latéralité du joueur">
-    <span class="hand-lbl">Main</span>
-    <button type="button" class="hand-btn active" data-hand="R" title="Coups pour un joueur droitier">Droitier</button>
-    <button type="button" class="hand-btn" data-hand="L" title="Coups miroir pour un joueur gaucher">Gaucher</button>
-  </div>
 </div>
 
 <div id="editor">
@@ -1134,35 +1107,35 @@ const shotKeys = ['saque', 'saqueh', 'plche', 'dmd', 'avdj'];
 const shotDefs = {
   saque: {
     color: '#4a7cff',
-    pos: [15.5, 0.8, 5], horiz: -7, vert: 25, strength: 20,
+    pos: [15.5, 0.8, 5], horiz: 7, vert: 25, strength: 20,
     playerPos: [15.5, 0, 5],
     name: 'Le but', sub: 'Fem',
     desc: 'Féminines : but depuis la ligne 4. Servez vous de la planche pour alonger votre but.',
   },
   saqueh: {
     color: '#ff6b6b',
-    pos: [18, 0.8, 5], horiz: -3.5, vert: 25, strength: 25,
+    pos: [18, 0.8, 5], horiz: 3.5, vert: 25, strength: 25,
     playerPos: [18, 0, 5],
     name: 'Le but', sub: 'Hom',
     desc: 'Gars : ligne 5. Un bon but doit rester collé à gauche pour compliquer le renvoi.',
   },
   plche: {
     color: '#ff6b6b',
-    pos: [7, 0.8, 6], horiz: -7, vert: 25, strength: 19,
+    pos: [7, 0.8, 6], horiz: 7, vert: 25, strength: 19,
     playerPos: [7, 0, 6],
     name: 'La planche', sub: 'Passer le joueur avant',
     desc: 'Construire un point en écartant les lignes avant/arrière.',
   },
   dmd: {
     color: '#ff6b6b',
-    pos: [15, 0.8, 4.5], horiz: 34, vert: 16, strength: 25,
+    pos: [15, 0.8, 4.5], horiz: -34, vert: 16, strength: 25,
     playerPos: [15, 0, 4.5],
     name: 'Deux murs', sub: 'Dos paredes',
     desc: 'Deux murs (direct en zone haute de la 4 ou indirect avec rebond au sol pour atteindre le filet).'
   },
   avdj: {
     color: '#ff6b6b',
-    pos: [15, 0.8, 4.5], horiz: 34, vert: 16, strength: 25,
+    pos: [15, 0.8, 4.5], horiz: -34, vert: 16, strength: 25,
     playerPos: [15, 0, 4.5],
     name: 'A vous de jouer', sub: 'Amusez-vous!',
     desc: 'Cliquez sur <mark>Simuler vos coups</mark>, pour ajuster vos meilleurs coups.'
@@ -1485,25 +1458,10 @@ function cloneShot(src) {
   return { pos: [...src.pos], horiz: src.horiz, vert: src.vert, strength: src.strength, color: src.color };
 }
 
-// ── Latéralité (droitier / gaucher) ──
-// Les coups sont définis pour un droitier. Pour un gaucher, on applique une
-// symétrie miroir le long de l'axe z : la position z est retournée
-// (z' = COURT_W - z) et l'angle horizontal est inversé (h' = -h).
-let handedness = 'R';
-
-function mirrorShotForHand(shot) {
-  if (handedness === 'R') return shot;
-  return {
-    ...shot,
-    pos: [shot.pos[0], shot.pos[1], COURT_W - shot.pos[2]],
-    horiz: -shot.horiz,
-  };
-}
-
 function selectShot(key) {
   currentShot = key;
   const def = shotDefs[key];
-  editorShot = cloneShot(mirrorShotForHand(def));
+  editorShot = cloneShot(def);
   trajectory = simulateShot(editorShot);
   trailMat.color.set(def.color);
   dashMat.color.set(def.color);
@@ -1758,20 +1716,6 @@ document.getElementById('editToggle').addEventListener('click', () => {
     document.getElementById('panel').style.display   = show ? 'none' : '';
     document.getElementById('cameras').style.display = show ? 'none' : '';
   }
-});
-
-// Bascule Droitier / Gaucher : on réapplique la sélection courante pour
-// recalculer la position et la trajectoire en miroir si nécessaire.
-document.querySelectorAll('#handToggle .hand-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const hand = btn.dataset.hand === 'L' ? 'L' : 'R';
-    if (hand === handedness) return;
-    handedness = hand;
-    document.querySelectorAll('#handToggle .hand-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.hand === handedness);
-    });
-    selectShot(currentShot);
-  });
 });
 
 document.getElementById('ed_apply').addEventListener('click', applyEditorToCurrentShot);
