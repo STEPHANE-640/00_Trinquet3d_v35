@@ -1233,7 +1233,7 @@ function dirToAngles(dir) {
 }
 
 function anglesToDir(hDeg, vDeg) {
-  const h = hDeg * RAD, v = vDeg * RAD;
+  const h = -hDeg * RAD, v = vDeg * RAD;
   return [-Math.cos(v) * Math.cos(h), Math.sin(v), Math.cos(v) * Math.sin(h)];
 }
 
