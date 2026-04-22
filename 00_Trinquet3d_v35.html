@@ -63,12 +63,16 @@
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
   #editor {
-    position: fixed; right: 12px; bottom: 12px; width: 320px;
+    /* Remplace #panel au même endroit */
+    position: fixed; top: 12px; right: 12px; width: 300px;
+    max-height: calc(100vh - 24px); overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #333 transparent;
     border: 1px solid #2a2d38; border-radius: 10px; background: #12141cdd;
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     padding: 10px 12px; z-index: 10; display: none;
   }
-  #editor.visible { display: block; }
+  #editor.visible { display: flex; flex-direction: column; }
+  body.mobile-detected #editor { top: 62px; max-height: calc(100vh - 74px); }
   #editor .etitle { color: #ccd5e5; font-size: .78rem; font-weight: 600; margin-bottom: 8px; }
 
   #editor .sandwich { display: flex; gap: 6px; align-items: stretch; }
@@ -288,71 +292,73 @@
   }
   #mobile-banner .mb-close:hover { background: #2a1a50; color: #fff; }
 
+  /* ══════════════════════════════════════════════
+     MOBILE DÉTECTÉ — portrait & paysage
+     Basé sur classes JS : .mobile-detected .landscape
+     Ciblé OPPO A16s : 360×800 portrait / 800×360 paysage
+  ══════════════════════════════════════════════ */
+
+  /* Bannière mobile décale les éléments */
   body.mobile-detected #cameras { top: 62px; }
-  body.mobile-detected #panel   { top: 62px; max-height: calc(100vh - 74px); }
-  body.mobile-detected #title   { bottom: 4px; font-size: .6rem; }
+  body.mobile-detected #panel   { top: 62px; }
+  body.mobile-detected #editor  { top: 62px; }
+  body.mobile-detected #title   { display: none; }
 
-  /* ── Portrait phone : panneau réduit à droite, ne couvre pas le 3D ── */
-  @media (max-width: 600px) and (orientation: portrait) {
-    #panel {
-      width: 42vw; right: 6px; top: 12px;
-      max-height: calc(100vh - 24px);
-      font-size: .72rem;
-    }
-    body.mobile-detected #panel { top: 62px; max-height: calc(100vh - 74px); }
-    .shot-btn { padding: 7px 8px; }
-    .shot-btn .name { font-size: .75rem; }
-    .shot-btn .desc { font-size: .64rem; }
-    #cameras { top: 12px; left: 6px; max-width: 54vw; gap: 4px; flex-wrap: wrap; }
-    body.mobile-detected #cameras { top: 62px; }
-    #cameras button { font-size: .65rem; padding: 5px 7px; }
-    #controls { bottom: 6px; left: 6px; flex-wrap: wrap; max-width: 54vw; gap: 4px; }
-    #controls button { font-size: .65rem; padding: 5px 8px; }
-    #editor { width: calc(100vw - 12px); right: 6px; bottom: 6px; }
-    #title { display: none; }
+  /* ── PORTRAIT : panel/éditeur 44% de largeur à droite ── */
+  body.mobile-detected #panel,
+  body.mobile-detected #editor {
+    width: 44vw;
+    right: 4px;
+    max-height: calc(100vh - 74px);
+    overflow-y: auto;
   }
+  body.mobile-detected #cameras {
+    left: 4px; max-width: 52vw; gap: 3px; flex-wrap: wrap;
+  }
+  body.mobile-detected #cameras button { font-size: .62rem; padding: 4px 6px; }
+  body.mobile-detected #controls {
+    bottom: 4px; left: 4px; flex-wrap: wrap; max-width: 52vw; gap: 3px;
+  }
+  body.mobile-detected #controls button { font-size: .62rem; padding: 4px 7px; }
+  body.mobile-detected .shot-btn { padding: 6px 7px; gap: 2px; }
+  body.mobile-detected .shot-btn .name { font-size: .72rem; }
+  body.mobile-detected .shot-btn .es   { font-size: .65rem; }
+  body.mobile-detected .shot-btn .desc { font-size: .60rem; line-height: 1.25; margin-top: 2px; }
 
-  /* ── Landscape phone : panneau compact sur la droite ── */
-  @media (max-width: 900px) and (orientation: landscape) {
-    #panel {
-      width: 220px; right: 6px;
-      max-height: calc(100vh - 24px);
-    }
-    body.mobile-detected #panel { top: 62px; max-height: calc(100vh - 74px); }
-    .shot-btn { padding: 6px 8px; }
-    .shot-btn .name { font-size: .78rem; }
-    .shot-btn .desc { font-size: .66rem; }
-    #cameras { max-width: calc(100vw - 220px); }
-    #controls { max-width: calc(100vw - 220px); }
-    /* Éditeur en bandeau bas pleine largeur */
-    #editor {
-      width: 100vw !important;
-      right: 0 !important; left: 0 !important;
-      bottom: 0 !important;
-      border-radius: 12px 12px 0 0;
-      padding: 8px 12px 10px;
-      max-height: 50vh;
-      overflow-y: auto;
-    }
-    #editor .sliders-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0 16px;
-    }
-    #editor .grp-label { margin-top: 8px; }
-    #editor .grp:first-child .grp-label { margin-top: 0; }
+  /* ── PAYSAGE : panel/éditeur 28% de largeur, hauteur 100vh ── */
+  body.mobile-detected.landscape #panel,
+  body.mobile-detected.landscape #editor {
+    width: 28vw;
+    top: 8px;
+    right: 4px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
   }
-  /* Quand éditeur ouvert en paysage mobile : libérer le 3D */
-  @media (max-width: 900px) and (orientation: landscape) {
-    body.editor-open #panel,
-    body.editor-open #cameras { display: none !important; }
-    body.editor-open #controls { bottom: calc(50vh + 6px); left: 6px; }
+  body.mobile-detected.landscape #cameras {
+    top: 8px; left: 4px;
+    max-width: calc(72vw - 8px);
+    gap: 3px;
   }
+  body.mobile-detected.landscape #controls {
+    bottom: 4px; left: 4px;
+    max-width: calc(72vw - 8px);
+    gap: 3px;
+  }
+  /* Éditeur paysage : contenu ultra-compact */
+  body.mobile-detected.landscape #editor .etitle { font-size: .68rem; margin-bottom: 4px; }
+  body.mobile-detected.landscape #editor .grp-label { font-size: .54rem; margin-top: 8px; padding-bottom: 2px; }
+  body.mobile-detected.landscape #editor .grp:first-child .grp-label { margin-top: 0; }
+  body.mobile-detected.landscape #editor .srow { margin-bottom: 8px; }
+  body.mobile-detected.landscape #editor .srow .slabel { font-size: .60rem; margin-bottom: 3px; }
+  body.mobile-detected.landscape #editor .srow input[type=range] { height: 4px; }
+  body.mobile-detected.landscape #editor .vert-col { padding: 5px 3px; flex: 0 0 22px; }
+  body.mobile-detected.landscape #editor .vert-col .col-lbl { font-size: .52rem; }
+  body.mobile-detected.landscape #editor .v-range-wrap input[type=range] { height: 60px; }
+  body.mobile-detected.landscape #editor .btns { gap: 3px; margin-top: 6px; }
+  body.mobile-detected.landscape #editor button { font-size: .60rem; padding: 4px 6px; }
 
-  /* ── Fallback générique petits écrans ── */
-  @media (max-width: 480px) {
-    #cameras { max-width: calc(100vw - 24px); }
-  }
+  /* Masquer le panel quand l'éditeur est ouvert */
+  body.editor-open #panel { display: none !important; }
 
   /* ── Bannière orientation portrait ── */
   #rotate-hint {
@@ -1790,18 +1796,9 @@ document.getElementById('editToggle').addEventListener('click', () => {
   const show = !ed.classList.contains('visible');
   ed.classList.toggle('visible', show);
   document.getElementById('editToggle').classList.toggle('active', show);
-  // Classe CSS gère la visibilité panel/cameras via media query landscape
   document.body.classList.toggle('editor-open', show);
   if (show) syncEditorFromShot();
   arrowHelper.visible = show;
-  if (window._isMobileDevice) {
-    // Sur mobile portrait : masquer panel et cameras également
-    const isLandscape = window.innerWidth > window.innerHeight;
-    if (!isLandscape) {
-      document.getElementById('panel').style.display   = show ? 'none' : '';
-      document.getElementById('cameras').style.display = show ? 'none' : '';
-    }
-  }
 });
 
 document.getElementById('ed_apply').addEventListener('click', applyEditorToCurrentShot);
@@ -1896,7 +1893,7 @@ animate();
 (function detectMobile() {
   const isMobile =
     /Android|iPhone|iPod|iPad|Mobile|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-    (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
+    navigator.maxTouchPoints > 1;
   if (!isMobile) return;
   window._isMobileDevice = true;
 
@@ -1917,9 +1914,12 @@ animate();
   let rhDismissed  = false;
 
   function checkOrientation() {
+    const isLandscape = window.innerWidth > window.innerHeight;
+    // Classe landscape sur body pour CSS
+    document.body.classList.toggle('landscape', isLandscape);
+    // Hint rotation portrait
     if (isTablet || rhDismissed) { rotateHint.style.display = 'none'; return; }
-    const isPortrait = window.innerHeight > window.innerWidth;
-    rotateHint.style.display = isPortrait ? 'flex' : 'none';
+    rotateHint.style.display = isLandscape ? 'none' : 'flex';
   }
 
   rhDismiss.addEventListener('click', () => {
