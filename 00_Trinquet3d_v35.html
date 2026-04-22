@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Trinquet 3D — Simulateur de coups</title>
 
 <!-- PWA : plein écran sans barre d'adresse -->
@@ -12,6 +12,7 @@
 <meta name="apple-mobile-web-app-title" content="Trinquet 3D">
 <meta name="application-name" content="Trinquet 3D">
 <meta name="theme-color" content="#0a0c12">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Trinquet%203D%22%2C%22short_name%22%3A%22Trinquet%203D%22%2C%22display%22%3A%22fullscreen%22%2C%22orientation%22%3A%22landscape%22%2C%22background_color%22%3A%22%230a0c12%22%2C%22theme_color%22%3A%22%230a0c12%22%2C%22start_url%22%3A%22.%22%7D">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0c12; overflow: hidden; }
@@ -291,12 +292,61 @@
   body.mobile-detected #panel   { top: 62px; max-height: calc(100vh - 74px); }
   body.mobile-detected #title   { bottom: 4px; font-size: .6rem; }
 
+  /* ── Portrait phone : panneau réduit à droite, ne couvre pas le 3D ── */
+  @media (max-width: 600px) and (orientation: portrait) {
+    #panel {
+      width: 42vw; right: 6px; top: 12px;
+      max-height: calc(100vh - 24px);
+      font-size: .72rem;
+    }
+    body.mobile-detected #panel { top: 62px; max-height: calc(100vh - 74px); }
+    .shot-btn { padding: 7px 8px; }
+    .shot-btn .name { font-size: .75rem; }
+    .shot-btn .desc { font-size: .64rem; }
+    #cameras { top: 12px; left: 6px; max-width: 54vw; gap: 4px; flex-wrap: wrap; }
+    body.mobile-detected #cameras { top: 62px; }
+    #cameras button { font-size: .65rem; padding: 5px 7px; }
+    #controls { bottom: 6px; left: 6px; flex-wrap: wrap; max-width: 54vw; gap: 4px; }
+    #controls button { font-size: .65rem; padding: 5px 8px; }
+    #editor { width: calc(100vw - 12px); right: 6px; bottom: 6px; }
+    #title { display: none; }
+  }
+
+  /* ── Landscape phone : panneau compact sur la droite ── */
+  @media (max-width: 900px) and (orientation: landscape) {
+    #panel {
+      width: 220px; right: 6px;
+      max-height: calc(100vh - 24px);
+    }
+    body.mobile-detected #panel { top: 62px; max-height: calc(100vh - 74px); }
+    .shot-btn { padding: 6px 8px; }
+    .shot-btn .name { font-size: .78rem; }
+    .shot-btn .desc { font-size: .66rem; }
+    #cameras { max-width: calc(100vw - 240px); }
+    #controls { max-width: calc(100vw - 240px); }
+    #editor { width: calc(100vw - 240px); right: 230px; bottom: 6px; }
+  }
+
+  /* ── Fallback générique petits écrans ── */
   @media (max-width: 480px) {
-    #panel { width: calc(100vw - 24px); right: 12px; }
     #cameras { max-width: calc(100vw - 24px); }
-    #controls { flex-wrap: wrap; max-width: calc(100vw - 24px); gap: 5px; }
-    #controls button { font-size: .70rem; padding: 6px 10px; }
-    #editor { width: calc(100vw - 24px); right: 12px; }
+  }
+
+  /* ── Bannière orientation portrait ── */
+  #rotate-hint {
+    display: none;
+    position: fixed; inset: 0; z-index: 500;
+    background: #0a0c12ee;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; color: #c0c8e8; font-size: .9rem; text-align: center; padding: 20px;
+  }
+  #rotate-hint .rh-icon { font-size: 3rem; animation: rotateHint 2s ease-in-out infinite; }
+  @keyframes rotateHint { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
+  #rotate-hint p { max-width: 260px; line-height: 1.5; color: #a0b0d0; }
+  #rotate-hint small { font-size: .72rem; color: #606880; }
+  #rotate-hint button {
+    margin-top: 6px; padding: 7px 18px; border: 1px solid #3a4060;
+    border-radius: 8px; background: #12141c; color: #8090c0; cursor: pointer; font-size: .78rem;
   }
 </style>
 </head>
@@ -311,6 +361,14 @@
     </div>
     <button class="mb-close" id="mb-close-btn">Compris</button>
   </div>
+</div>
+
+<div id="rotate-hint">
+  <div class="rh-icon">📱</div>
+  <strong style="font-size:1rem;color:#e0e8ff">Tournez votre téléphone</strong>
+  <p>Ce simulateur 3D s'affiche mieux en <strong>mode paysage</strong> (téléphone à l'horizontale).</p>
+  <small>Vous pouvez aussi continuer en portrait.</small>
+  <button id="rh-dismiss">Continuer quand même</button>
 </div>
 
 <div id="container"></div>
@@ -1813,6 +1871,8 @@ animate();
     (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
   if (!isMobile) return;
   window._isMobileDevice = true;
+
+  // Bannière info mobile
   const banner = document.getElementById('mobile-banner');
   const closeBtn = document.getElementById('mb-close-btn');
   banner.style.display = 'block';
@@ -1821,6 +1881,35 @@ animate();
     banner.style.display = 'none';
     document.body.classList.remove('mobile-detected');
   });
+
+  // Hint rotation portrait (sauf iPad)
+  const isTablet = /iPad/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && window.innerWidth >= 768);
+  const rotateHint = document.getElementById('rotate-hint');
+  const rhDismiss  = document.getElementById('rh-dismiss');
+  let rhDismissed  = false;
+
+  function checkOrientation() {
+    if (isTablet || rhDismissed) { rotateHint.style.display = 'none'; return; }
+    const isPortrait = window.innerHeight > window.innerWidth;
+    rotateHint.style.display = isPortrait ? 'flex' : 'none';
+  }
+
+  rhDismiss.addEventListener('click', () => {
+    rhDismissed = true;
+    rotateHint.style.display = 'none';
+  });
+
+  window.addEventListener('resize', checkOrientation);
+  window.addEventListener('orientationchange', checkOrientation);
+  checkOrientation();
+
+  // Tentative plein écran (fonctionne depuis "Ajouter à l'écran d'accueil" / PWA)
+  document.addEventListener('click', () => {
+    const el = document.documentElement;
+    if (!document.fullscreenElement && el.requestFullscreen) {
+      el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    }
+  }, { once: true });
 })();
 
 </script>
