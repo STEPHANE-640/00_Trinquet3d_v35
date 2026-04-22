@@ -322,9 +322,31 @@
     .shot-btn { padding: 6px 8px; }
     .shot-btn .name { font-size: .78rem; }
     .shot-btn .desc { font-size: .66rem; }
-    #cameras { max-width: calc(100vw - 240px); }
-    #controls { max-width: calc(100vw - 240px); }
-    #editor { width: calc(100vw - 240px); right: 230px; bottom: 6px; }
+    #cameras { max-width: calc(100vw - 220px); }
+    #controls { max-width: calc(100vw - 220px); }
+    /* Éditeur en bandeau bas pleine largeur */
+    #editor {
+      width: 100vw !important;
+      right: 0 !important; left: 0 !important;
+      bottom: 0 !important;
+      border-radius: 12px 12px 0 0;
+      padding: 8px 12px 10px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+    #editor .sliders-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 16px;
+    }
+    #editor .grp-label { margin-top: 8px; }
+    #editor .grp:first-child .grp-label { margin-top: 0; }
+  }
+  /* Quand éditeur ouvert en paysage mobile : libérer le 3D */
+  @media (max-width: 900px) and (orientation: landscape) {
+    body.editor-open #panel,
+    body.editor-open #cameras { display: none !important; }
+    body.editor-open #controls { bottom: calc(50vh + 6px); left: 6px; }
   }
 
   /* ── Fallback générique petits écrans ── */
@@ -1768,11 +1790,17 @@ document.getElementById('editToggle').addEventListener('click', () => {
   const show = !ed.classList.contains('visible');
   ed.classList.toggle('visible', show);
   document.getElementById('editToggle').classList.toggle('active', show);
+  // Classe CSS gère la visibilité panel/cameras via media query landscape
+  document.body.classList.toggle('editor-open', show);
   if (show) syncEditorFromShot();
   arrowHelper.visible = show;
   if (window._isMobileDevice) {
-    document.getElementById('panel').style.display   = show ? 'none' : '';
-    document.getElementById('cameras').style.display = show ? 'none' : '';
+    // Sur mobile portrait : masquer panel et cameras également
+    const isLandscape = window.innerWidth > window.innerHeight;
+    if (!isLandscape) {
+      document.getElementById('panel').style.display   = show ? 'none' : '';
+      document.getElementById('cameras').style.display = show ? 'none' : '';
+    }
   }
 });
 
