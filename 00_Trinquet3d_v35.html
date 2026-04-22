@@ -19,7 +19,7 @@
   #container { position: fixed; inset: 0; }
 
   #panel {
-    position: fixed; top: 12px; right: 12px; width: 300px;
+    position: fixed; top: 12px; right: 12px; width: 270px;
     display: flex; flex-direction: column; gap: 6px;
     max-height: calc(100vh - 24px); overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #333 transparent;
@@ -64,7 +64,7 @@
 
   #editor {
     /* Remplace #panel au même endroit */
-    position: fixed; top: 12px; right: 12px; width: 300px;
+    position: fixed; top: 12px; right: 12px; width: 270px;
     max-height: calc(100vh - 24px); overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #333 transparent;
     border: 1px solid #2a2d38; border-radius: 10px; background: #12141cdd;
@@ -170,17 +170,11 @@
     background: #7ec8ff; border: 2px solid #12141c; cursor: pointer;
   }
 
-  #editor .btns { display: flex; gap: 5px; margin-top: 9px; flex-wrap: wrap; align-items: center; }
   #editor button {
     padding: 5px 8px; border: 1px solid #2a2d38; border-radius: 6px;
     background: #12141cdd; color: #c9d0dd; cursor: pointer; font-size: .70rem;
   }
   #editor button:hover { background: #1e2230dd; color: #fff; }
-  #editor .live-lbl {
-    display: flex; align-items: center; gap: 5px;
-    color: #8090b0; font-size: .70rem; padding-right: 4px; cursor: pointer;
-  }
-  #editor .live-lbl input { width: auto; cursor: pointer; }
 
   #title {
     position: fixed; bottom: 12px; left: 50%; transform: translateX(-50%);
@@ -307,17 +301,17 @@
   /* ── PORTRAIT : panel/éditeur 44% de largeur à droite ── */
   body.mobile-detected #panel,
   body.mobile-detected #editor {
-    width: 44vw;
+    width: 40vw;
     right: 4px;
     max-height: calc(100vh - 74px);
     overflow-y: auto;
   }
   body.mobile-detected #cameras {
-    left: 4px; max-width: 52vw; gap: 3px; flex-wrap: wrap;
+    left: 4px; max-width: 56vw; gap: 3px; flex-wrap: wrap;
   }
   body.mobile-detected #cameras button { font-size: .62rem; padding: 4px 6px; }
   body.mobile-detected #controls {
-    bottom: 4px; left: 4px; flex-wrap: wrap; max-width: 52vw; gap: 3px;
+    bottom: 4px; left: 4px; flex-wrap: wrap; max-width: 56vw; gap: 3px;
   }
   body.mobile-detected #controls button { font-size: .62rem; padding: 4px 7px; }
   body.mobile-detected .shot-btn { padding: 6px 7px; gap: 2px; }
@@ -328,7 +322,7 @@
   /* ── PAYSAGE : panel/éditeur 28% de largeur, hauteur 100vh ── */
   body.mobile-detected.landscape #panel,
   body.mobile-detected.landscape #editor {
-    width: 28vw;
+    width: 25vw;
     top: 8px;
     right: 4px;
     max-height: calc(100vh - 16px);
@@ -336,12 +330,12 @@
   }
   body.mobile-detected.landscape #cameras {
     top: 8px; left: 4px;
-    max-width: calc(72vw - 8px);
+    max-width: calc(75vw - 8px);
     gap: 3px;
   }
   body.mobile-detected.landscape #controls {
     bottom: 4px; left: 4px;
-    max-width: calc(72vw - 8px);
+    max-width: calc(75vw - 8px);
     gap: 3px;
   }
   /* Éditeur paysage : contenu ultra-compact */
@@ -472,15 +466,7 @@
 
   </div>
 
-  <div class="btns">
-    <label class="live-lbl">
-      <input id="ed_live" type="checkbox" checked> En direct
-    </label>
-    <button id="ed_apply">Appliquer</button>
-    <button id="ed_export">Exporter JSON</button>
-    <button id="ed_import_btn">Importer JSON</button>
-    <input id="ed_import_file" type="file" accept="application/json" style="display:none">
-  </div>
+
 </div>
 
 <div id="copyright" style="opacity: 0.75;">
@@ -1630,7 +1616,7 @@ function applyEditorToCurrentShot(replayAnim = true) {
 }
 
 function scheduleLiveApply() {
-  if (!document.getElementById('ed_live').checked) return;
+  // live apply toujours activé
   if (liveApplyTimer) clearTimeout(liveApplyTimer);
   liveApplyTimer = setTimeout(() => { applyEditorToCurrentShot(true); liveApplyTimer = null; }, 80);
 }
@@ -1801,20 +1787,7 @@ document.getElementById('editToggle').addEventListener('click', () => {
   arrowHelper.visible = show;
 });
 
-document.getElementById('ed_apply').addEventListener('click', applyEditorToCurrentShot);
-document.getElementById('ed_export').addEventListener('click', exportShotDefsJson);
-document.getElementById('ed_import_btn').addEventListener('click', () => { document.getElementById('ed_import_file').click(); });
-document.getElementById('ed_import_file').addEventListener('change', (e) => {
-  const f = e.target.files && e.target.files[0];
-  if (!f) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try { importShotDefsJson(String(reader.result || '')); }
-    catch (err) { alert(`JSON invalide : ${err.message}`); }
-  };
-  reader.readAsText(f);
-  e.target.value = '';
-});
+// Boutons export/import désactivés (usage interne uniquement)
 
 // ── Mini-carte terrain ──
 const MM_X_MIN = 1, MM_X_MAX = 26.2;
@@ -1915,15 +1888,12 @@ animate();
 
   function checkOrientation() {
     const isLandscape = window.innerWidth > window.innerHeight;
-    // Classe landscape sur body pour CSS
     document.body.classList.toggle('landscape', isLandscape);
-    // Hint rotation portrait
-    if (isTablet || rhDismissed) { rotateHint.style.display = 'none'; return; }
+    if (isTablet) { rotateHint.style.display = 'none'; return; }
     rotateHint.style.display = isLandscape ? 'none' : 'flex';
   }
 
   rhDismiss.addEventListener('click', () => {
-    rhDismissed = true;
     rotateHint.style.display = 'none';
   });
 
