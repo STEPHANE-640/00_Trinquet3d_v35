@@ -63,6 +63,7 @@
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
   #editor {
+    /* Remplace #panel au même endroit */
     position: fixed; top: 12px; right: 12px; width: 270px;
     max-height: calc(100vh - 24px); overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #333 transparent;
@@ -287,14 +288,17 @@
 
   /* ══════════════════════════════════════════════
      MOBILE DÉTECTÉ — portrait & paysage
+     Basé sur classes JS : .mobile-detected .landscape
+     Ciblé OPPO A16s : 360×800 portrait / 800×360 paysage
   ══════════════════════════════════════════════ */
 
+  /* Bannière mobile décale les éléments */
   body.mobile-detected #cameras { top: 62px; }
   body.mobile-detected #panel   { top: 62px; }
   body.mobile-detected #editor  { top: 62px; }
   body.mobile-detected #title   { display: none; }
 
-  /* PORTRAIT */
+  /* ── PORTRAIT : panel/éditeur 44% de largeur à droite ── */
   body.mobile-detected #panel,
   body.mobile-detected #editor {
     width: 40vw;
@@ -315,7 +319,7 @@
   body.mobile-detected .shot-btn .es   { font-size: .65rem; }
   body.mobile-detected .shot-btn .desc { font-size: .60rem; line-height: 1.25; margin-top: 2px; }
 
-  /* PAYSAGE */
+  /* ── PAYSAGE : panel/éditeur 28% de largeur, hauteur 100vh ── */
   body.mobile-detected.landscape #panel,
   body.mobile-detected.landscape #editor {
     width: 25vw;
@@ -334,6 +338,7 @@
     max-width: calc(75vw - 8px);
     gap: 3px;
   }
+  /* Éditeur paysage : contenu ultra-compact */
   body.mobile-detected.landscape #editor .etitle { font-size: .68rem; margin-bottom: 4px; }
   body.mobile-detected.landscape #editor .grp-label { font-size: .54rem; margin-top: 8px; padding-bottom: 2px; }
   body.mobile-detected.landscape #editor .grp:first-child .grp-label { margin-top: 0; }
@@ -346,9 +351,10 @@
   body.mobile-detected.landscape #editor .btns { gap: 3px; margin-top: 6px; }
   body.mobile-detected.landscape #editor button { font-size: .60rem; padding: 4px 6px; }
 
+  /* Masquer le panel quand l'éditeur est ouvert */
   body.editor-open #panel { display: none !important; }
 
-  /* Bannière orientation portrait */
+  /* ── Bannière orientation portrait ── */
   #rotate-hint {
     display: none;
     position: fixed; inset: 0; z-index: 500;
@@ -365,8 +371,6 @@
     border-radius: 8px; background: #12141c; color: #8090c0; cursor: pointer; font-size: .78rem;
   }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
@@ -462,6 +466,7 @@
 
   </div>
 
+
 </div>
 
 <div id="copyright" style="opacity: 0.75;">
@@ -471,7 +476,7 @@
     <span id="copy-op-val">75%</span>
   </div>
   <div class="copy-cartouche">
-    <img class="copy-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAWwCAYAAAAv1VZUAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oEDw8jG+l43WIAACAASURBVHja7N13VBRp+jbgu2my5CSIIAYwy+BgVsw5xzHnnMY45pwdc9bBnNOYx5wDozIiigkkCCpIzhn6+8Pd/WbntxOquhu6q+/rnD17Zneet7vuequ766HqLRnGVp8EqZEpTACZEUi6FApjKGDMICRMJjMCFCYMQtIMIEMJxiDpA1kfgBlzkPQXshwKmTlzkPQ+1gNkFsxB2h/WkCksGYPkdzP3se65qw8Z1kvxM4sk3wzgbtaR3x9ERKThn9P8qOZ3MXE/E5FG0mMERERERERERETSwoYPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERHRf6RkpjIEIiIJYMOHiIiIiIj+o9bGQWz6EBFJABs+RERERET0HyFxUXBb2xvp2ekMg4hIi+kzAiL6p6KTYhAR9wHRyTFIzU5HVl420nMyYWViAQO5Pkpa2sPZuhTKObjBzNiMgZFkFCoKEZ38BdFJ0YhPS0B8WgKy83ORV5CH9JxMmBmZwkBuAGtTi6//XcIKzjalUNqmNAz1DRggkRq+j2JT4xCbGof49ERk5GSioLAAqdnpkMvksDD5+h1kb2YDO3Nb2JrZb3B28HN+59nERERUfFiw4dIi2Xn5eBy4DWMOzgLsrnN4LaoA8ae2YjbIc+B3FwERAZp3TZ9ToomIiJSGzZ8iLRMWlYakhMyuONDRERaiQ0fIi2W/OUjfj/yGyYfnQ/YOBT7m3A5sQ9wKInb3x6gzv4u2i7m5yO/IF/cIBnpaL1/LtzW9tHKbTY1MtWqrW7+12d8ToxmgEQkYWy4EBER6Yy4+AjcDL6DOyEvyA0A3f/2gPj0BCTGJvC+k+11h3ZCSUuhh5W5n35G/e2jUcfF13L5S562gTcy4PspIknhv46IiIh0wqewIGS8+lDscZ+t11Vb23kQZJBh61jflv7O3Lw8fH77RPyc21vYA12822Pztd3InF7V3G3j4Tsqb+Q34iWSo9kZcE1V4Vd+Q0K/Yf3Ds9hyfbdatrUot0vR9pWc+V8iUg2+RUpERET0D4i5j8YmxqLHRH56jYx3n0Tf2hdwcUP+t+tF1pU+e5uXq4+rI72x+65gX3x364iWP+Z/zMTAEHXdVmvd9pY0H6j3a+B+wY+xsP04+F3xV7f0X02a/pP1r4V0fS1r1x/LbgwF5GgOISLp+g+8+yVz58fMvwAAAABJRU5ErkJggg==">
+    <img class="copy-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAWwCAYAAAAv1VZUAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oEDw8jG+l43WIAACAASURBVHja7N13VBRp+jbgu2my5CSIIAYwy+BgVsw5xzHnnMY45pwdc9bBnNOYx5wDozIiigkkCCpIzhn6+8Pd/WbntxOquhu6q+/rnD17Zneet7vuequ766HqLRnGVp8EqZEpTACZEUi6FApjKGDMICRMJjMCFCYMQtIMIEMJxiDpA1kfgBlzkPQXshwKmTlzkPQ+1gNkFsxB2h/WkCksGYPkdzP3se65qw8Z1kvxM4sk3wzgbtaR3x9ERKThn9P8qOZ3MXE/E5FG0mMERERERERERETSwoYPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERERERFJDBs+REREREREREQSw4YPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERHRf6RkpjIEIiIJYMOHiIiIiIj+o9bGQWz6EBFJABs+RERERET0HyFxUXBb2xvp2ekMg4hIi+kzAiL6p6KTYhAR9wHRyTFIzU5HVl420nMyYWViAQO5Pkpa2sPZuhTKObjBzNiMgZFkFCoKEZ38BdFJ0YhPS0B8WgKy83ORV5CH9JxMmBmZwkBuAGtTi6//XcIKzjalUNqmNAz1DRggkRq+j2JT4xCbGof49ERk5GSioLAAqdnpkMvksDD5+h1kb2YDO3Nb2JrZb3B28HN+59nERERUfFiw4dIi2Xn5eBy4DWMOzgLsrnN4LaoA8ae2YjbIc+B3FwERAZp3TZ9ToomIiJSGzZ8iLRMWlYakhMyuONDRERaiQ0fIi2W/OUjfj/yGyYfnQ/YOBT7m3A5sQ9wKInb3x6gzv4u2i7m5yO/IF/cIBnpaL1/LtzW9tHKbTY1MtWqrW7+12d8ToxmgEQkYWy4EBER6Yy4+AjcDL6DOyEvyA0A3f/2gPj0BCTGJvC+k+11h3ZCSUuhh5W5n35G/e2jUcfF13L5S562gTcy4PspIknhv46IiIh0wqewIGS8+lDscZ+t11Vb23kQZJBh61jflv7O3Lw8fH77RPyc21vYA12822Pztd3InF7V3G3j4Tsqb+Q34iWSo9kZcE1V4Vd+Q0K/Yf3Ds9hyfbdatrUot0vR9pWc+V8iUg2+RUpERET0D4i5j8YmxqLHRH56jYx3n0Tf2hdwcUP+t+tF1pU+e5uXq4+rI72x+65gX3x364iWP+Z/zMTAEHXdVmvd9pY0H6j3a+B+wY+xsP04+F3xV7f0X02a/pP1r4V0fS1r1x/LbgwF5GgOISLp+g+8+yVz58fMvwAAAABJRU5ErkJggg==">
     <div class="copy-text">
       <span class="copy-name">Fédération Française de Pelote Basque</span>
       <span class="copy-sub">Plateforme Trinquet 3D</span>
@@ -479,323 +484,5 @@
   </div>
 </div>
 
-<script>
-// --- DONNÉES ET CONFIGURATION DU SIMULATEUR ---
-const SHOTS = [
-  {
-    name: "Carambole Cloche",
-    es: "Picado / Carambola",
-    desc: "Balle piquée frappant le frontis très haut, puis la planche supérieure pour retomber à pic.",
-    color: "#ff4a4a",
-    origin: { x: 15.5, y: 0.8, z: 5.0 },
-    v0: { x: -16.0, y: 15.0, z: -2.5 }
-  },
-  {
-    name: "Coup du Tambour",
-    es: "Tambor / Chapa",
-    desc: "Frappe tendue rasant la ligne pour surprendre l'adversaire au fond.",
-    color: "#ffaa00",
-    origin: { x: 14.0, y: 0.9, z: 4.5 },
-    v0: { x: -22.0, y: 5.2, z: -0.5 }
-  },
-  {
-    name: "Brosse Filet",
-    es: "Efecto Sare",
-    desc: "Tir brossé ricochant sur le filet latéral pour désaxer la trajectoire.",
-    color: "#4aff7c",
-    origin: { x: 16.0, y: 0.7, z: 6.0 },
-    v0: { x: -18.0, y: 7.5, z: -5.5 }
-  },
-  {
-    name: "Grand Rebot",
-    es: "Rebote Profundo",
-    desc: "Puissance maximale envoyant la balle heurter le mur de fond en hauteur.",
-    color: "#4a7cff",
-    origin: { x: 10.0, y: 1.0, z: 3.5 },
-    v0: { x: -25.0, y: 11.0, z: 0.0 }
-  }
-];
-
-// Dimensions Trinquet (mètres)
-const COURT = { length: 28.5, width: 9.3, height: 8.5, chapaH: 0.85 };
-
-// Variable Globales 3D
-let scene, camera, renderer, controls;
-let ball, trajLine, shadowPlane;
-let currentShotIdx = 0;
-let isPaused = false;
-let speedFactor = 0.5;
-let isCustomMode = false;
-let trajectoryPoints = [];
-let animProgress = 0;
-let customParams = { posX: 15.5, posY: 0.8, posZ: 5.0, angleH: 7, angleV: 25, strength: 20 };
-
-// Cibles Caméra
-const CAM_POSITIONS = {
-  default: { pos: [24, 12, 18], target: [0, 2, 0] },
-  side:    { pos: [0, 4, 15], target: [0, 2, 0] },
-  player:  { pos: [16, 1.6, 5], target: [-14, 2, 0] },
-  gallery: { pos: [-13, 3, 0], target: [5, 1, 0] }
-};
-
-function init() {
-  const container = document.getElementById('container');
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0a0c12);
-
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  container.appendChild(renderer.domElement);
-
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-
-  // Lumières
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-  scene.add(ambientLight);
-
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-  dirLight.position.set(10, 20, 10);
-  dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 2048;
-  dirLight.shadow.mapSize.height = 2048;
-  scene.add(dirLight);
-
-  buildCourt();
-  buildBall();
-  buildUI();
-  setCamera('default');
-
-  window.addEventListener('resize', onWindowResize);
-  setupMobileHandlers();
-
-  calculateTrajectory();
-  animate();
-}
-
-function buildCourt() {
-  const group = new THREE.Group();
-
-  // Sol
-  const floorGeo = new THREE.PlaneGeometry(COURT.length, COURT.width);
-  const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e2433, roughness: 0.4 });
-  const floor = new THREE.Mesh(floorGeo, floorMat);
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
-  group.add(floor);
-
-  // Mur de Frontis (Front)
-  const frontGeo = new THREE.PlaneGeometry(COURT.width, COURT.height);
-  const frontMat = new THREE.MeshStandardMaterial({ color: 0x2a3245, roughness: 0.3 });
-  const front = new THREE.Mesh(frontGeo, frontMat);
-  front.position.set(-COURT.length / 2, COURT.height / 2, 0);
-  front.rotation.y = Math.PI / 2;
-  front.receiveShadow = true;
-  group.add(front);
-
-  // Ligne de Chapa (LIGNE 0.85m)
-  const chapaGeo = new THREE.PlaneGeometry(COURT.width, 0.08);
-  const chapaMat = new THREE.MeshBasicMaterial({ color: 0xff4444 });
-  const chapa = new THREE.Mesh(chapaGeo, chapaMat);
-  chapa.position.set(-COURT.length / 2 + 0.01, COURT.chapaH, 0);
-  chapa.rotation.y = Math.PI / 2;
-  group.add(chapa);
-
-  // Ligne de 5.50m (LIGNE 5.50m)
-  const line550Geo = new THREE.PlaneGeometry(COURT.width, 0.05);
-  const line550Mat = new THREE.MeshBasicMaterial({ color: 0xccaa00 });
-  const line550 = new THREE.Mesh(line550Geo, line550Mat);
-  line550.position.set(-COURT.length / 2 + 5.5, 0.01, 0);
-  line550.rotation.x = -Math.PI / 2;
-  group.add(line550);
-
-  // Planche supérieure (PLANCHE)
-  const plancheGeo = new THREE.BoxGeometry(0.2, 0.4, COURT.width);
-  const plancheMat = new THREE.MeshStandardMaterial({ color: 0x553311, roughness: 0.6 });
-  const planche = new THREE.Mesh(plancheGeo, plancheMat);
-  planche.position.set(-COURT.length / 2 + 0.1, COURT.height - 0.2, 0);
-  group.add(planche);
-
-  scene.add(group);
-}
-
-function buildBall() {
-  const geo = new THREE.SphereGeometry(0.12, 32, 32);
-  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.1 });
-  ball = new THREE.Mesh(geo, mat);
-  ball.castShadow = true;
-  scene.add(ball);
-}
-
-function calculateTrajectory() {
-  trajectoryPoints = [];
-  let p, v;
-
-  if (!isCustomMode) {
-    const shot = SHOTS[currentShotIdx];
-    p = new THREE.Vector3(shot.origin.x - COURT.length/2, shot.origin.y, shot.origin.z - COURT.width/2);
-    v = new THREE.Vector3(shot.v0.x, shot.v0.y, shot.v0.z);
-  } else {
-    p = new THREE.Vector3(customParams.posX - COURT.length/2, customParams.posY, customParams.posZ - COURT.width/2);
-    const radH = (customParams.angleH * Math.PI) / 180;
-    const radV = (customParams.angleV * Math.PI) / 180;
-    const speed = customParams.strength;
-    v = new THREE.Vector3(
-      -Math.cos(radV) * Math.cos(radH) * speed,
-      Math.sin(radV) * speed,
-      Math.sin(radH) * speed
-    );
-  }
-
-  const dt = 0.016;
-  const g = -9.81;
-
-  for (let i = 0; i < 200; i++) {
-    trajectoryPoints.push(p.clone());
-    p.x += v.x * dt;
-    p.y += v.y * dt;
-    p.z += v.z * dt;
-    v.y += g * dt;
-
-    // Rebonds simples (Sol & Frontis)
-    if (p.y <= 0.12) { p.y = 0.12; v.y *= -0.75; }
-    if (p.x <= -COURT.length / 2 + 0.12) { p.x = -COURT.length / 2 + 0.12; v.x *= -0.8; }
-  }
-
-  updateTrajectoryLine();
-  animProgress = 0;
-}
-
-function updateTrajectoryLine() {
-  if (trajLine) scene.remove(trajLine);
-  const geo = new THREE.BufferGeometry().setFromPoints(trajectoryPoints);
-  const color = isCustomMode ? 0x7ec8ff : SHOTS[currentShotIdx].color;
-  const mat = new THREE.LineBasicMaterial({ color: color, linewidth: 2, transparent: true, opacity: 0.6 });
-  trajLine = new THREE.Line(geo, mat);
-  scene.add(trajLine);
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!isPaused && trajectoryPoints.length > 0) {
-    animProgress += speedFactor;
-    const idx = Math.floor(animProgress) % trajectoryPoints.length;
-    ball.position.copy(trajectoryPoints[idx]);
-  }
-
-  controls.update();
-  renderer.render(scene, camera);
-}
-
-function setCamera(type) {
-  const c = CAM_POSITIONS[type];
-  if (!c) return;
-  camera.position.set(...c.pos);
-  controls.target.set(...c.target);
-  document.querySelectorAll('#cameras button').forEach(b => b.classList.toggle('active', b.dataset.cam === type));
-}
-
-function buildUI() {
-  const panel = document.getElementById('panel');
-  panel.innerHTML = '';
-  SHOTS.forEach((s, idx) => {
-    const btn = document.createElement('div');
-    btn.className = `shot-btn ${idx === 0 ? 'active' : ''}`;
-    btn.style.setProperty('--c', s.color);
-    btn.innerHTML = `<span class="name">${s.name}</span><span class="es">${s.es}</span><span class="desc">${s.desc}</span>`;
-    btn.onclick = () => {
-      currentShotIdx = idx;
-      document.querySelectorAll('.shot-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-      if (isCustomMode) toggleCustomMode(false);
-      calculateTrajectory();
-    };
-    panel.appendChild(btn);
-  });
-
-  // Listeners Boutons Caméras
-  document.querySelectorAll('#cameras button').forEach(b => {
-    b.onclick = () => setCamera(b.dataset.cam);
-  });
-
-  // Listeners Controles
-  document.getElementById('replay').onclick = () => { animProgress = 0; };
-  document.getElementById('pause').onclick = (e) => {
-    isPaused = !isPaused;
-    e.target.innerText = isPaused ? "▶ Reprendre" : "Pause";
-  };
-  document.getElementById('speed').onclick = (e) => {
-    speedFactor = speedFactor === 0.5 ? 1.0 : (speedFactor === 1.0 ? 0.2 : 0.5);
-    e.target.innerText = `Vitesse : ${speedFactor}x`;
-  };
-  document.getElementById('editToggle').onclick = () => toggleCustomMode(!isCustomMode);
-
-  // Sliders Editeur
-  setupSliders();
-}
-
-function setupSliders() {
-  const bindSlider = (id, valId, unit, prop) => {
-    const el = document.getElementById(id);
-    el.oninput = (e) => {
-      customParams[prop] = parseFloat(e.target.value);
-      document.getElementById(valId).innerText = customParams[prop] + unit;
-      if (isCustomMode) calculateTrajectory();
-    };
-  };
-  bindSlider('sl_strength', 'sv_strength', '', 'strength');
-  bindSlider('sl_pos_x', 'sv_pos_x', ' m', 'posX');
-  bindSlider('sl_pos_z', 'sv_pos_z', ' m', 'posZ');
-  bindSlider('sl_pos_y', 'sv_pos_y', 'm', 'posY');
-  bindSlider('sl_angle_h', 'sv_angle_h', '°', 'angleH');
-  bindSlider('sl_angle_v', 'sv_angle_v', '°', 'angleV');
-}
-
-function toggleCustomMode(enable) {
-  isCustomMode = enable;
-  document.getElementById('editor').classList.toggle('visible', enable);
-  document.getElementById('editToggle').classList.toggle('active', enable);
-  document.body.classList.toggle('editor-open', enable);
-  calculateTrajectory();
-}
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  checkOrientation();
-}
-
-function setupMobileHandlers() {
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (isMobile) {
-    document.body.classList.add('mobile-detected');
-    document.getElementById('mobile-banner').style.display = 'block';
-  }
-  document.getElementById('mb-close-btn').onclick = () => {
-    document.getElementById('mobile-banner').style.display = 'none';
-  };
-  document.getElementById('rh-dismiss').onclick = () => {
-    document.getElementById('rotate-hint').style.display = 'none';
-  };
-  window.addEventListener('orientationchange', checkOrientation);
-  checkOrientation();
-}
-
-function checkOrientation() {
-  const isLandscape = window.innerWidth > window.innerHeight;
-  document.body.classList.toggle('landscape', isLandscape);
-  if (document.body.classList.contains('mobile-detected')) {
-    document.getElementById('rotate-hint').style.display = isLandscape ? 'none' : 'flex';
-  }
-}
-
-// Lancement au chargement de la page
-window.onload = init;
-</script>
 </body>
 </html>
