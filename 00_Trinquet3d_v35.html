@@ -2,15 +2,24 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Trinquet 3D — Simulateur de coups</title>
+
+<!-- PWA : plein écran sans barre d'adresse -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trinquet 3D">
+<meta name="application-name" content="Trinquet 3D">
+<meta name="theme-color" content="#0a0c12">
+<link rel="manifest" href="data:application/json;charset=utf-8,%7B%22name%22%3A%22Trinquet%203D%22%2C%22short_name%22%3A%22Trinquet%203D%22%2C%22display%22%3A%22fullscreen%22%2C%22orientation%22%3A%22landscape%22%2C%22background_color%22%3A%22%230a0c12%22%2C%22theme_color%22%3A%22%230a0c12%22%2C%22start_url%22%3A%22.%22%7D">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0c12; overflow: hidden; }
   #container { position: fixed; inset: 0; }
 
   #panel {
-    position: fixed; top: 12px; right: 12px; width: 300px;
+    position: fixed; top: 12px; right: 12px; width: 270px;
     display: flex; flex-direction: column; gap: 6px;
     max-height: calc(100vh - 24px); overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #333 transparent;
@@ -54,23 +63,115 @@
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
   #editor {
-    position: fixed; right: 12px; bottom: 12px; width: 300px;
-    border: 1px solid #2a2d38; border-radius: 8px; background: #12141cdd;
+    position: fixed; top: 12px; right: 12px; width: 270px;
+    max-height: calc(100vh - 24px); overflow-y: auto;
+    scrollbar-width: thin; scrollbar-color: #333 transparent;
+    border: 1px solid #2a2d38; border-radius: 10px; background: #12141cdd;
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    padding: 10px; z-index: 10; display: none;
+    padding: 10px 12px; z-index: 10; display: none;
   }
-  #editor.visible { display: block; }
-  #editor .row { display: flex; gap: 6px; margin-top: 6px; }
-  #editor .row label { flex: 1; font-size: .68rem; color: #95a0b6; display: flex; flex-direction: column; gap: 3px; }
-  #editor .title { color: #ccd5e5; font-size: .78rem; font-weight: 600; }
-  #editor input {
-    width: 100%; background: #0e1118; color: #d8deeb; border: 1px solid #2a2d38;
-    border-radius: 5px; padding: 4px 6px; font-size: .72rem;
+  #editor.visible { display: flex; flex-direction: column; }
+  body.mobile-detected #editor { top: 62px; max-height: calc(100vh - 74px); }
+  #editor .etitle { color: #ccd5e5; font-size: .78rem; font-weight: 600; margin-bottom: 8px; }
+
+  #editor .sandwich { display: flex; gap: 6px; align-items: stretch; }
+
+  #editor .vert-col {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px; background: #161920; border-radius: 99px;
+    padding: 8px 5px; flex: 0 0 26px;
+    border: 0.5px solid #22263a;
   }
-  #editor .btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  #editor .vert-col .col-lbl {
+    writing-mode: vertical-rl; text-orientation: mixed;
+    transform: rotate(180deg);
+    font-size: .58rem; color: #566080; letter-spacing: .06em;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  #editor .vert-col .extremity {
+    font-size: .65rem; color: #3a4560; font-weight: 700;
+    line-height: 1; flex-shrink: 0; user-select: none;
+    width: 16px; text-align: center;
+  }
+  #editor .vert-col .v-num-val {
+    font-size: .65rem; font-weight: 700; color: #7ec8ff;
+    font-variant-numeric: tabular-nums;
+    line-height: 1; flex-shrink: 0;
+    width: 100%; text-align: center;
+    letter-spacing: -.01em;
+    background: #0e111a;
+    border-radius: 4px;
+    padding: 2px 2px;
+    border: 0.5px solid #22304a;
+  }
+
+  #editor .v-range-wrap {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    min-height: 70px;
+  }
+  #editor .v-range-wrap input[type=range] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    -webkit-appearance: none; appearance: none;
+    width: 16px; height: 80px;
+    background: transparent; border: none; outline: none;
+    cursor: pointer; padding: 0; margin: 0;
+  }
+  #editor .v-range-wrap input[type=range]::-webkit-slider-runnable-track {
+    width: 3px; background: #252840; border-radius: 2px;
+  }
+  #editor .v-range-wrap input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 5px;
+    border-radius: 2px;
+    background: #7ec8ff;
+    cursor: pointer; border: none;
+    margin-left: -6px;
+  }
+  #editor .v-range-wrap input[type=range]::-moz-range-track {
+    width: 3px; background: #252840; border-radius: 2px;
+  }
+  #editor .v-range-wrap input[type=range]::-moz-range-thumb {
+    width: 16px; height: 5px; border-radius: 2px;
+    background: #7ec8ff; border: none; cursor: pointer;
+  }
+
+  #editor .sliders-col { flex: 1; }
+  #editor .grp { margin-top: 0; }
+  #editor .grp-label {
+    font-size: .60rem; font-weight: 700; color: #4a5575;
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 7px;
+    margin-top: 14px; padding-bottom: 4px; border-bottom: 1px solid #1e2238;
+  }
+  #editor .grp:first-child .grp-label { margin-top: 0; }
+  #editor .srow { margin-bottom: 15px; }
+  #editor .srow:last-child { margin-bottom: 0; }
+  #editor .srow .slabel {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: .67rem; color: #8090b0; margin-bottom: 6px;
+  }
+  #editor .srow .slabel .sval {
+    font-size: .70rem; font-weight: 600; color: #7ec8ff;
+    font-variant-numeric: tabular-nums;
+  }
+  #editor .srow input[type=range] {
+    width: 100%; display: block;
+    -webkit-appearance: none; appearance: none;
+    height: 5px; border-radius: 3px; background: #252840; border: none; padding: 0;
+    cursor: pointer; outline: none;
+  }
+  #editor .srow input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: #7ec8ff; cursor: pointer; border: 2px solid #12141c;
+  }
+  #editor .srow input[type=range]::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #7ec8ff; border: 2px solid #12141c; cursor: pointer;
+  }
+
   #editor button {
-    padding: 6px 8px; border: 1px solid #2a2d38; border-radius: 6px;
-    background: #12141cdd; color: #c9d0dd; cursor: pointer; font-size: .72rem;
+    padding: 5px 8px; border: 1px solid #2a2d38; border-radius: 6px;
+    background: #12141cdd; color: #c9d0dd; cursor: pointer; font-size: .70rem;
   }
   #editor button:hover { background: #1e2230dd; color: #fff; }
 
@@ -79,632 +180,622 @@
     color: #ffffff50; font-size: .7rem; z-index: 10; text-align: center;
     pointer-events: none;
   }
+
+  #collision-alert {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7);
+    padding: 14px 28px; border-radius: 12px;
+    font-size: 1.05rem; font-weight: 700; letter-spacing: .04em;
+    text-align: center; pointer-events: none;
+    opacity: 0; z-index: 100;
+    transition: opacity .08s, transform .08s;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border: 2px solid; white-space: nowrap;
+  }
+  #collision-alert.show {
+    opacity: 1; transform: translate(-50%, -50%) scale(1);
+  }
+  #collision-alert.type-chapa {
+    background: rgba(255,200,0,0.18); border-color: #ffcc00;
+    color: #ffee55; box-shadow: 0 0 32px rgba(255,200,0,0.45);
+  }
+  #collision-alert.type-out {
+    background: rgba(255,60,60,0.18); border-color: #ff4444;
+    color: #ff7777; box-shadow: 0 0 32px rgba(255,60,60,0.45);
+  }
+  #flash-overlay {
+    position: fixed; inset: 0; pointer-events: none; z-index: 99;
+    opacity: 0; transition: opacity .06s;
+  }
+  #flash-overlay.flash-chapa { background: rgba(255,210,0,0.12); }
+  #flash-overlay.flash-out   { background: rgba(255,50,50,0.14); }
+
+  /* ── Copyright cartouche ── */
+  #copyright {
+    position: fixed; bottom: 10px; right: 12px;
+    z-index: 10; pointer-events: auto;
+    transition: opacity .25s;
+  }
+  #copyright .copy-cartouche {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white;
+    border-radius: 8px;
+    padding: 5px 11px 5px 7px;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+    cursor: default;
+  }
+  #copyright img.copy-logo {
+    height: 28px; width: auto;
+  }
+  #copyright .copy-text {
+    display: flex; flex-direction: column; line-height: 1.3;
+  }
+  #copyright .copy-name {
+    font-size: 10px; font-weight: 700; color: #1a5c1a; white-space: nowrap;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  #copyright .copy-sub {
+    font-size: 9px; color: #555; font-style: italic; white-space: nowrap;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+  #copyright .copy-slider-panel {
+    position: absolute; bottom: 46px; right: 0;
+    background: white; border-radius: 8px;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    padding: 6px 10px;
+    display: none; align-items: center; gap: 8px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.15);
+    white-space: nowrap;
+  }
+  #copyright:hover .copy-slider-panel { display: flex; }
+  #copyright .copy-slider-panel label { font-size: 10px; color: #555; font-family: 'Segoe UI', system-ui, sans-serif; }
+  #copyright .copy-slider-panel span  { font-size: 10px; color: #222; min-width: 30px; font-family: 'Segoe UI', system-ui, sans-serif; }
+  #copyright .copy-slider-panel input[type=range] {
+    width: 80px; cursor: pointer; height: 4px; accent-color: #1a5c1a;
+  }
+
+  /* ── Bannière mobile ── */
+  #mobile-banner {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0;
+    background: linear-gradient(135deg, #1a1030, #0f1a30);
+    border-bottom: 1px solid #3a2a60;
+    padding: 10px 14px 10px 14px;
+    z-index: 200;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.6);
+  }
+  #mobile-banner .mb-inner {
+    display: flex; align-items: center; gap: 10px;
+  }
+  #mobile-banner .mb-icon {
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  #mobile-banner .mb-text {
+    flex: 1;
+    font-size: .72rem; color: #c0b0e8; line-height: 1.4;
+  }
+  #mobile-banner .mb-text strong {
+    display: block; color: #e0d0ff; font-size: .78rem; margin-bottom: 2px;
+  }
+  #mobile-banner .mb-close {
+    background: none; border: 1px solid #5a3a90; border-radius: 6px;
+    color: #c0b0e8; font-size: .68rem; padding: 4px 8px;
+    cursor: pointer; flex-shrink: 0; pointer-events: all;
+    transition: all .15s;
+  }
+  #mobile-banner .mb-close:hover { background: #2a1a50; color: #fff; }
+
+  /* ══════════════════════════════════════════════
+     MOBILE DÉTECTÉ — portrait & paysage
+  ══════════════════════════════════════════════ */
+
+  body.mobile-detected #cameras { top: 62px; }
+  body.mobile-detected #panel   { top: 62px; }
+  body.mobile-detected #editor  { top: 62px; }
+  body.mobile-detected #title   { display: none; }
+
+  /* PORTRAIT */
+  body.mobile-detected #panel,
+  body.mobile-detected #editor {
+    width: 40vw;
+    right: 4px;
+    max-height: calc(100vh - 74px);
+    overflow-y: auto;
+  }
+  body.mobile-detected #cameras {
+    left: 4px; max-width: 56vw; gap: 3px; flex-wrap: wrap;
+  }
+  body.mobile-detected #cameras button { font-size: .62rem; padding: 4px 6px; }
+  body.mobile-detected #controls {
+    bottom: 4px; left: 4px; flex-wrap: wrap; max-width: 56vw; gap: 3px;
+  }
+  body.mobile-detected #controls button { font-size: .62rem; padding: 4px 7px; }
+  body.mobile-detected .shot-btn { padding: 6px 7px; gap: 2px; }
+  body.mobile-detected .shot-btn .name { font-size: .72rem; }
+  body.mobile-detected .shot-btn .es   { font-size: .65rem; }
+  body.mobile-detected .shot-btn .desc { font-size: .60rem; line-height: 1.25; margin-top: 2px; }
+
+  /* PAYSAGE */
+  body.mobile-detected.landscape #panel,
+  body.mobile-detected.landscape #editor {
+    width: 25vw;
+    top: 8px;
+    right: 4px;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+  }
+  body.mobile-detected.landscape #cameras {
+    top: 8px; left: 4px;
+    max-width: calc(75vw - 8px);
+    gap: 3px;
+  }
+  body.mobile-detected.landscape #controls {
+    bottom: 4px; left: 4px;
+    max-width: calc(75vw - 8px);
+    gap: 3px;
+  }
+  body.mobile-detected.landscape #editor .etitle { font-size: .68rem; margin-bottom: 4px; }
+  body.mobile-detected.landscape #editor .grp-label { font-size: .54rem; margin-top: 8px; padding-bottom: 2px; }
+  body.mobile-detected.landscape #editor .grp:first-child .grp-label { margin-top: 0; }
+  body.mobile-detected.landscape #editor .srow { margin-bottom: 8px; }
+  body.mobile-detected.landscape #editor .srow .slabel { font-size: .60rem; margin-bottom: 3px; }
+  body.mobile-detected.landscape #editor .srow input[type=range] { height: 4px; }
+  body.mobile-detected.landscape #editor .vert-col { padding: 5px 3px; flex: 0 0 22px; }
+  body.mobile-detected.landscape #editor .vert-col .col-lbl { font-size: .52rem; }
+  body.mobile-detected.landscape #editor .v-range-wrap input[type=range] { height: 60px; }
+  body.mobile-detected.landscape #editor .btns { gap: 3px; margin-top: 6px; }
+  body.mobile-detected.landscape #editor button { font-size: .60rem; padding: 4px 6px; }
+
+  body.editor-open #panel { display: none !important; }
+
+  /* Bannière orientation portrait */
+  #rotate-hint {
+    display: none;
+    position: fixed; inset: 0; z-index: 500;
+    background: #0a0c12ee;
+    flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; color: #c0c8e8; font-size: .9rem; text-align: center; padding: 20px;
+  }
+  #rotate-hint .rh-icon { font-size: 3rem; animation: rotateHint 2s ease-in-out infinite; }
+  @keyframes rotateHint { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(90deg)} }
+  #rotate-hint p { max-width: 260px; line-height: 1.5; color: #a0b0d0; }
+  #rotate-hint small { font-size: .72rem; color: #606880; }
+  #rotate-hint button {
+    margin-top: 6px; padding: 7px 18px; border: 1px solid #3a4060;
+    border-radius: 8px; background: #12141c; color: #8090c0; cursor: pointer; font-size: .78rem;
+  }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
+<div id="mobile-banner">
+  <div class="mb-inner">
+    <div class="mb-icon">📱</div>
+    <div class="mb-text">
+      <strong>Application optimisée pour ordinateur</strong>
+      Cette simulation 3D est conçue pour être utilisée sur un écran plus grand. Certaines fonctionnalités peuvent être difficiles à utiliser sur téléphone.
+    </div>
+    <button class="mb-close" id="mb-close-btn">Compris</button>
+  </div>
+</div>
+
+<div id="rotate-hint">
+  <div class="rh-icon">📱</div>
+  <strong style="font-size:1rem;color:#e0e8ff">Tournez votre téléphone</strong>
+  <p>Ce simulateur 3D s'affiche mieux en <strong>mode paysage</strong> (téléphone à l'horizontale).</p>
+  <small>Vous pouvez aussi continuer en portrait.</small>
+  <button id="rh-dismiss">Continuer quand même</button>
+</div>
+
 <div id="container"></div>
+<div id="flash-overlay"></div>
+<div id="collision-alert"></div>
 
 <div id="cameras">
   <button data-cam="default" class="active">Vue 3/4</button>
   <button data-cam="side">Côté (Vitre)</button>
   <button data-cam="player">Vue joueur</button>
-  <button data-cam="gallery">Galerie (Tejadillo)</button>
+  <button data-cam="gallery">Galerie (Tambour)</button>
 </div>
 
 <div id="panel"></div>
 
 <div id="controls">
-  <button id="replay">&#x25B6; Rejouer</button>
-  <button id="speed">Vitesse : 1x</button>
-  <button id="pause">Pause</button>
   <button id="dimBtn">Dimensions</button>
-  <button id="editToggle">Éditer le coup</button>
+  <button id="speed">Vitesse : 0.5x</button>
+  <button id="replay">&#x25B6; Rejouer</button>
+  <button id="pause">Pause</button>
+  <button id="editToggle">Simuler vos coups</button>
 </div>
 
 <div id="editor">
-  <div class="title">Éditeur de coup</div>
-  <div class="row">
-    <label>pos.x <input id="ed_pos_x" type="number" step="0.1"></label>
-    <label>pos.y <input id="ed_pos_y" type="number" step="0.1"></label>
-    <label>pos.z <input id="ed_pos_z" type="number" step="0.1"></label>
+  <div class="etitle">Simuler vos coups</div>
+
+  <div class="sandwich">
+
+    <div class="vert-col">
+      <div class="col-lbl">Puissance</div>
+      <div class="extremity">+</div>
+      <div class="v-range-wrap">
+        <input id="sl_strength" type="range" min="15" max="30" step="0.5" value="20">
+      </div>
+      <div class="extremity">−</div>
+      <div class="v-num-val" id="sv_strength">20.0</div>
+    </div>
+
+    <div class="sliders-col">
+      <div class="grp">
+        <div class="grp-label">📍 Position du joueur</div>
+        <div class="srow">
+          <span class="slabel">Frontis↔Rebote <span class="sval" id="sv_pos_x">15.5 m</span></span>
+          <input id="sl_pos_x" type="range" min="1" max="26.2" step="0.1" value="15.5">
+        </div>
+        <div class="srow">
+          <span class="slabel">Vitre↔Filet G. <span class="sval" id="sv_pos_z">5.0 m</span></span>
+          <input id="sl_pos_z" type="range" min="0.5" max="7" step="0.1" value="5">
+        </div>
+      </div>
+      <div class="grp">
+        <div class="grp-label">🎯 Direction du coup</div>
+        <div class="srow">
+          <span class="slabel">Horizontal <span class="sval" id="sv_angle_h">7°</span></span>
+          <input id="sl_angle_h" type="range" min="-90" max="90" step="1" value="7">
+        </div>
+        <div class="srow">
+          <span class="slabel">Vertical <span class="sval" id="sv_angle_v">25°</span></span>
+          <input id="sl_angle_v" type="range" min="0" max="60" step="1" value="25">
+        </div>
+      </div>
+    </div>
+
+    <div class="vert-col">
+      <div class="col-lbl">H. de frappe</div>
+      <div class="extremity">+</div>
+      <div class="v-range-wrap">
+        <input id="sl_pos_y" type="range" min="0.5" max="1.7" step="0.05" value="0.8">
+      </div>
+      <div class="extremity">−</div>
+      <div class="v-num-val" id="sv_pos_y">0.80m</div>
+    </div>
+
   </div>
-  <div class="row">
-    <label>horiz ° <input id="ed_angle_h" type="number" step="1"></label>
-    <label>vert ° <input id="ed_angle_v" type="number" step="1"></label>
+
+</div>
+
+<div id="copyright" style="opacity: 0.75;">
+  <div class="copy-slider-panel">
+    <label>Opacité</label>
+    <input type="range" min="10" max="100" value="75" step="5" id="copy-op-sl">
+    <span id="copy-op-val">75%</span>
   </div>
-  <div class="row">
-    <label>puissance <input id="ed_strength" type="number" step="0.1"></label>
-  </div>
-  <div class="btns">
-    <label style="display:flex;align-items:center;gap:6px;color:#aeb8cc;font-size:.72rem;padding-right:8px;">
-      <input id="ed_live" type="checkbox" checked style="width:auto;">
-      Appliquer en direct
-    </label>
-    <button id="ed_apply">Appliquer</button>
-    <button id="ed_export">Exporter JSON</button>
-    <button id="ed_import_btn">Importer JSON</button>
-    <input id="ed_import_file" type="file" accept="application/json" style="display:none">
+  <div class="copy-cartouche">
+    <img class="copy-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAWwCAYAAAAv1VZUAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oEDw8jG+l43WIAACAASURBVHja7N13VBRp+jbgu2my5CSIIAYwy+BgVsw5xzHnnMY45pwdc9bBnNOYx5wDozIiigkkCCpIzhn6+8Pd/WbntxOquhu6q+/rnD17Zneet7vuequ766HqLRnGVp8EqZEpTACZEUi6FApjKGDMICRMJjMCFCYMQtIMIEMJxiDpA1kfgBlzkPQXshwKmTlzkPQ+1gNkFsxB2h/WkCksGYPkdzP3se65qw8Z1kvxM4sk3wzgbtaR3x9ERKThn9P8qOZ3MXE/E5FG0mMERERERERERETSwoYPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERHRf6RkpjIEIiIJYMOHiIiIiIj+o9bGQWz6EBFJABs+RERERET0HyFxUXBb2xvp2ekMg4hIi+kzAiL6p6KTYhAR9wHRyTFIzU5HVl420nMyYWViAQO5Pkpa2sPZuhTKObjBzNiMgZFkFCoKEZ38BdFJ0YhPS0B8WgKy83ORV5CH9JxMmBmZwkBuAGtTi6//XcIKzjalUNqmNAz1DRggkRq+j2JT4xCbGof49ERk5GSioLAAqdnpkMvksDD5+h1kb2YDO3Nb2JrZb3B28HN+59nERERUfFiw4dIi2Xn5eBy4DWMOzgLsrnN4LaoA8ae2YjbIc+B3FwERAZp3TZ9ToomIiJSGzZ8iLRMWlYakhMyuONDRERaiQ0fIi2W/OUjfj/yGyYfnQ/YOBT7m3A5sQ9wKInb3x6gzv4u2i7m5yO/IF/cIBnpaL1/LtzW9tHKbTY1MtWqrW7+12d8ToxmgEQkYWy4EBER6Yy4+AjcDL6DOyEvyA0A3f/2gPj0BCTGJvC+k+11h3ZCSUuhh5W5n35G/e2jUcfF13L5S562gTcy4PspIknhv46IiIh0wqewIGS8+lDscZ+t11Vb23kQZJBh61jflv7O3Lw8fH77RPyc21vYA12822Pztd3InF7V3G3j4Tsqb+Q34iWSo9kZcE1V4Vd+Q0K/Yf3Ds9hyfbdatrUot0vR9pWc+V8iUg2+RUpERET0D4i5j8YmxqLHRH56jYx3n0Tf2hdwcUP+t+tF1pU+e5uXq4+rI72x+65gX3x364iWP+Z/zMTAEHXdVmvd9pY0H6j3a+B+wY+xsP04+F3xV7f0X02a/pP1r4V0fS1r1x/LbgwF5GgOISLp+g+8+yVz58fMvwAAAABJRU5ErkJggg==">
+    <div class="copy-text">
+      <span class="copy-name">Fédération Française de Pelote Basque</span>
+      <span class="copy-sub">Plateforme Trinquet 3D</span>
+    </div>
   </div>
 </div>
 
-<div id="title">Glisser pour orbiter &middot; Molette pour zoomer &middot; Clic droit pour déplacer</div>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+<script>
+// --- DONNÉES ET CONFIGURATION DU SIMULATEUR ---
+const SHOTS = [
+  {
+    name: "Carambole Cloche",
+    es: "Picado / Carambola",
+    desc: "Balle piquée frappant le frontis très haut, puis la planche supérieure pour retomber à pic.",
+    color: "#ff4a4a",
+    origin: { x: 15.5, y: 0.8, z: 5.0 },
+    v0: { x: -16.0, y: 15.0, z: -2.5 }
+  },
+  {
+    name: "Coup du Tambour",
+    es: "Tambor / Chapa",
+    desc: "Frappe tendue rasant la ligne pour surprendre l'adversaire au fond.",
+    color: "#ffaa00",
+    origin: { x: 14.0, y: 0.9, z: 4.5 },
+    v0: { x: -22.0, y: 5.2, z: -0.5 }
+  },
+  {
+    name: "Brosse Filet",
+    es: "Efecto Sare",
+    desc: "Tir brossé ricochant sur le filet latéral pour désaxer la trajectoire.",
+    color: "#4aff7c",
+    origin: { x: 16.0, y: 0.7, z: 6.0 },
+    v0: { x: -18.0, y: 7.5, z: -5.5 }
+  },
+  {
+    name: "Grand Rebot",
+    es: "Rebote Profundo",
+    desc: "Puissance maximale envoyant la balle heurter le mur de fond en hauteur.",
+    color: "#4a7cff",
+    origin: { x: 10.0, y: 1.0, z: 3.5 },
+    v0: { x: -25.0, y: 11.0, z: 0.0 }
   }
-}
-</script>
-
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-// ── Dimensions du trinquet (mètres) ──
-const COURT_L = 28.5, COURT_W = 9.3, COURT_H = 9.5;
-const FRAILE_W = 0.47;
-const TEJ_D = 1.3, TEJ_H_OUTER = 1.9, TEJ_H_INNER = 2.25;
-const CHAPA_LOW = 0.8, CHAPA_HIGH = 8.5, CHAPA_REBOTE = 5.5;
-const WALL_STEP_X = 4.5, WALL_H_FRONT = 8.5, WALL_H_BACK = 5.5;
-const TEJ_Z = COURT_W - TEJ_D;
-const FRONTIS_H = 10;
-const W = COURT_W;
-const NET_START = 4.5;
-const NET_END = 25.2;
-const POLE_X = [4.5, 7.25, 10.0, 12.5, 15.0, 17.5, 20.0, 22.6, 25.2];
-
-// ── Scène ──
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x0a0c12);
-scene.fog = new THREE.FogExp2(0x0a0c12, 0.008);
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.2;
-document.getElementById('container').appendChild(renderer.domElement);
-
-const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(30, 13, 0);
-
-const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(10, 2, 5);
-controls.enableDamping = true;
-controls.dampingFactor = 0.08;
-controls.update();
-
-// ── Lumières ──
-scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-const dirLight = new THREE.DirectionalLight(0xfff8e8, 1.2);
-dirLight.position.set(14, 20, 5);
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.set(2048, 2048);
-Object.assign(dirLight.shadow.camera, { left: -20, right: 35, top: 15, bottom: -5, near: 1, far: 50 });
-scene.add(dirLight);
-scene.add(new THREE.DirectionalLight(0xb0c0ff, 0.3).translateX(-5).translateY(10).translateZ(10));
-
-// ── Matériaux ──
-
-// Chapa : jaune vif avec forte émission
-const chapaMat = new THREE.MeshStandardMaterial({
-  color: 0xffdd00,
-  emissive: 0xffaa00,
-  emissiveIntensity: 0.9,
-  roughness: 0.15,
-  metalness: 0.6,
-});
-
-const mat = {
-  floor:    new THREE.MeshStandardMaterial({ color: 0x1a3828, roughness: 0.85 }),
-  frontis:  new THREE.MeshStandardMaterial({ color: 0xb8a898, roughness: 0.6 }),
-  rebote:   new THREE.MeshStandardMaterial({ color: 0xa09080, roughness: 0.6 }),
-  wall:     new THREE.MeshStandardMaterial({ color: 0xa89888, roughness: 0.6 }),
-  glass:    new THREE.MeshStandardMaterial({ color: 0x88bbdd, roughness: 0.1, transparent: true, opacity: 0.06, side: THREE.DoubleSide }),
-  fraile:   new THREE.MeshStandardMaterial({ color: 0xd4a040, roughness: 0.4, side: THREE.DoubleSide }),
-  tejRoof:  new THREE.MeshStandardMaterial({ color: 0x705838, roughness: 0.7, side: THREE.DoubleSide }),
-  tejWall:  new THREE.MeshStandardMaterial({ color: 0x807060, roughness: 0.6 }),
-  chapa:    chapaMat,
-  net:      new THREE.MeshStandardMaterial({ color: 0x9060b0, transparent: true, opacity: 0.35, side: THREE.DoubleSide }),
-  line:     new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x444444, transparent: true, opacity: 0.5 }),
-  padding:  new THREE.MeshStandardMaterial({ color: 0x332222, roughness: 0.95 }),
-  oreille:  new THREE.MeshStandardMaterial({ color: 0x882828, emissive: 0x441111, roughness: 0.7 }),
-};
-
-function box(w, h, d, material) {
-  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-  m.castShadow = true; m.receiveShadow = true;
-  return m;
-}
-
-function addEdge(pts, color = 0x446688, opacity = 0.3) {
-  const g = new THREE.BufferGeometry().setFromPoints(pts.map(p => new THREE.Vector3(...p)));
-  scene.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color, transparent: true, opacity })));
-}
-
-function addChapaLine(points) {
-  const geo = new THREE.BufferGeometry().setFromPoints(
-    points.map(p => new THREE.Vector3(...p))
-  );
-  const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0xffee00 }));
-  scene.add(line);
-}
-
-// ── Sol ──
-const floor = box(COURT_L, 0.12, COURT_W, mat.floor);
-floor.position.set(COURT_L/2, -0.06, COURT_W/2);
-scene.add(floor);
-
-[10, 15, 17.5, 20].forEach(d => {
-  const l = box(0.08, 0.005, COURT_W, mat.line);
-  l.position.set(d, 0.005, COURT_W/2);
-  scene.add(l);
-});
-const perpLine = box(COURT_L - 15, 0.005, 0.08, mat.line);
-perpLine.position.set(15 + (COURT_L - 15)/2, 0.005, COURT_W/2);
-scene.add(perpLine);
-
-// ── Frontis (x=0) ──
-const frontis = box(0.35, FRONTIS_H, COURT_W, mat.frontis);
-frontis.position.set(-0.175, FRONTIS_H/2, COURT_W/2);
-scene.add(frontis);
-
-const padAbove = box(0.36, FRONTIS_H - CHAPA_HIGH, COURT_W, mat.padding);
-padAbove.position.set(-0.175, CHAPA_HIGH + (FRONTIS_H - CHAPA_HIGH)/2, COURT_W/2);
-scene.add(padAbove);
-
-const oreilleH = WALL_H_FRONT - WALL_H_BACK;
-
-// Chapa basse du frontis
-const chapaLow = box(0.12, 0.20, COURT_W + 0.1, mat.chapa);
-chapaLow.position.set(0.06, CHAPA_LOW + 0.10, COURT_W/2);
-scene.add(chapaLow);
-addChapaLine([[0.13, CHAPA_LOW, 0], [0.13, CHAPA_LOW, COURT_W]]);
-addChapaLine([[0.13, CHAPA_LOW + 0.10, 0], [0.13, CHAPA_LOW + 0.10, COURT_W]]);
-addChapaLine([[0.13, CHAPA_LOW + 0.20, 0], [0.13, CHAPA_LOW + 0.20, COURT_W]]);
-
-// Chapa haute du frontis
-const chapaHigh = box(0.12, 0.18, COURT_W + 0.1, mat.chapa);
-chapaHigh.position.set(0.06, CHAPA_HIGH + 0.09, COURT_W/2);
-scene.add(chapaHigh);
-addChapaLine([[0.13, CHAPA_HIGH, 0], [0.13, CHAPA_HIGH, COURT_W]]);
-addChapaLine([[0.13, CHAPA_HIGH + 0.09, 0], [0.13, CHAPA_HIGH + 0.09, COURT_W]]);
-addChapaLine([[0.13, CHAPA_HIGH + 0.18, 0], [0.13, CHAPA_HIGH + 0.18, COURT_W]]);
-
-const padBelow = box(0.36, CHAPA_LOW, COURT_W, mat.padding);
-padBelow.position.set(-0.175, CHAPA_LOW/2, COURT_W/2);
-scene.add(padBelow);
-
-// ── Zones cibles du frontis ──
-const ZONE_Y_MID = (CHAPA_LOW + CHAPA_HIGH) / 2;
-const ZONE_Z_MID = COURT_W / 2;
-const ZONE_H = (CHAPA_HIGH - CHAPA_LOW) / 2;
-const ZONE_W_HALF = COURT_W / 2;
-
-const zonesDef = [
-  { id: 1, label: '1', yC: ZONE_Y_MID + ZONE_H/2, zC: ZONE_Z_MID + ZONE_W_HALF/2 },
-  { id: 2, label: '2', yC: ZONE_Y_MID + ZONE_H/2, zC: ZONE_Z_MID - ZONE_W_HALF/2 },
-  { id: 3, label: '3', yC: ZONE_Y_MID - ZONE_H/2, zC: ZONE_Z_MID + ZONE_W_HALF/2 },
-  { id: 4, label: '4', yC: ZONE_Y_MID - ZONE_H/2, zC: ZONE_Z_MID - ZONE_W_HALF/2 },
 ];
 
-const zones = [];
-const hitZones = new Set();
-const zoneBorderMat = new THREE.LineBasicMaterial({ color: 0x4488cc, transparent: true, opacity: 0.25 });
+// Dimensions Trinquet (mètres)
+const COURT = { length: 28.5, width: 9.3, height: 8.5, chapaH: 0.85 };
 
-for (const zd of zonesDef) {
-  const zm = new THREE.MeshStandardMaterial({
-    color: 0x4488cc, transparent: true, opacity: 0.06,
-    emissive: 0x000000, roughness: 0.5, side: THREE.DoubleSide,
-  });
-  const zh = ZONE_H - 0.1, zw = ZONE_W_HALF - 0.1;
-  const mesh = box(0.02, zh, zw, zm);
-  mesh.position.set(0.02, zd.yC, zd.zC);
-  scene.add(mesh);
-
-  const by0 = zd.yC - zh/2, by1 = zd.yC + zh/2;
-  const bz0 = zd.zC - zw/2, bz1 = zd.zC + zw/2;
-  const bx = 0.03;
-  scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([
-    new THREE.Vector3(bx,by0,bz0), new THREE.Vector3(bx,by1,bz0),
-    new THREE.Vector3(bx,by1,bz1), new THREE.Vector3(bx,by0,bz1),
-    new THREE.Vector3(bx,by0,bz0),
-  ]), zoneBorderMat));
-
-  const sp = createSprite(zd.label, [0.05, zd.yC, zd.zC], '#4488cc', 1.8);
-  scene.add(sp);
-
-  zones.push({ ...zd, mesh, mat: zm, sprite: sp });
-}
-
-function checkZoneHit(pos) {
-  if (pos.x > 0.5) return;
-  for (const z of zones) {
-    if (hitZones.has(z.id)) continue;
-    if (Math.abs(pos.y - z.yC) < ZONE_H/2 && Math.abs(pos.z - z.zC) < ZONE_W_HALF/2) {
-      hitZones.add(z.id);
-      z.mat.opacity = 0.3;
-      z.mat.emissive.set(0x2266aa);
-      z.sprite.material.opacity = 1.0;
-    }
-  }
-}
-
-function resetZones() {
-  hitZones.clear();
-  for (const z of zones) {
-    z.mat.opacity = 0.06;
-    z.mat.emissive.set(0x000000);
-    z.sprite.material.opacity = 0.7;
-  }
-}
-
-// ── Rebote (x=28.5) ──
-const rebote = box(0.3, WALL_H_BACK, COURT_W, mat.rebote);
-rebote.position.set(COURT_L + 0.15, WALL_H_BACK/2, COURT_W/2);
-scene.add(rebote);
-
-// Chapa du rebote
-const chapaReb = box(0.12, 0.18, COURT_W + 0.1, mat.chapa);
-chapaReb.position.set(COURT_L - 0.06, CHAPA_REBOTE + 0.09, COURT_W/2);
-scene.add(chapaReb);
-addChapaLine([[COURT_L - 0.13, CHAPA_REBOTE, 0], [COURT_L - 0.13, CHAPA_REBOTE, COURT_W]]);
-addChapaLine([[COURT_L - 0.13, CHAPA_REBOTE + 0.09, 0], [COURT_L - 0.13, CHAPA_REBOTE + 0.09, COURT_W]]);
-addChapaLine([[COURT_L - 0.13, CHAPA_REBOTE + 0.18, 0], [COURT_L - 0.13, CHAPA_REBOTE + 0.18, COURT_W]]);
-
-// ── Chapa mur GAUCHE (z=COURT_W) ──
-const chapaLeftMainLen = COURT_L - WALL_STEP_X;
-const chapaLeftWall = box(chapaLeftMainLen, 0.18, 0.12, mat.chapa);
-chapaLeftWall.position.set(WALL_STEP_X + chapaLeftMainLen/2, CHAPA_REBOTE + 0.09, COURT_W - 0.06);
-scene.add(chapaLeftWall);
-
-const chapaLeftFaceH = WALL_H_FRONT - CHAPA_REBOTE;
-const chapaLeftFace = box(0.18, chapaLeftFaceH, 0.12, mat.chapa);
-chapaLeftFace.position.set(WALL_STEP_X, CHAPA_REBOTE + chapaLeftFaceH/2, COURT_W - 0.06);
-scene.add(chapaLeftFace);
-
-const chapaLeftTop = box(WALL_STEP_X + 0.1, 0.18, 0.12, mat.chapa);
-chapaLeftTop.position.set(WALL_STEP_X/2, WALL_H_FRONT + 0.09, COURT_W - 0.06);
-scene.add(chapaLeftTop);
-
-// ── Chapa mur DROIT (z=0) ──
-const chapaRightMainLen = COURT_L - WALL_STEP_X;
-const chapaRightWall = box(chapaRightMainLen, 0.18, 0.12, mat.chapa);
-chapaRightWall.position.set(WALL_STEP_X + chapaRightMainLen/2, CHAPA_REBOTE + 0.09, 0.06);
-scene.add(chapaRightWall);
-
-const chapaRightFaceH = WALL_H_FRONT - CHAPA_REBOTE;
-const chapaRightFace = box(0.18, chapaRightFaceH, 0.12, mat.chapa);
-chapaRightFace.position.set(WALL_STEP_X, CHAPA_REBOTE + chapaRightFaceH/2, 0.06);
-scene.add(chapaRightFace);
-
-const chapaRightTop = box(WALL_STEP_X + 0.1, 0.18, 0.12, mat.chapa);
-chapaRightTop.position.set(WALL_STEP_X/2, WALL_H_FRONT + 0.09, 0.06);
-scene.add(chapaRightTop);
-
-// ── Mur GAUCHE ──
-const lwLowerH = WALL_H_BACK - TEJ_H_INNER;
-const lw1_lower = box(WALL_STEP_X, lwLowerH, 0.3, mat.wall);
-lw1_lower.position.set(WALL_STEP_X/2, TEJ_H_INNER + lwLowerH/2, COURT_W + 0.15);
-scene.add(lw1_lower);
-
-const oreilleLeftMat = mat.oreille.clone();
-const oreilleLeft = box(WALL_STEP_X, oreilleH, 0.3, oreilleLeftMat);
-oreilleLeft.position.set(WALL_STEP_X/2, WALL_H_BACK + oreilleH/2, COURT_W + 0.15);
-scene.add(oreilleLeft);
-
-const lwH2 = WALL_H_BACK - TEJ_H_INNER;
-const lw2 = box(COURT_L - WALL_STEP_X, lwH2, 0.3, mat.wall);
-lw2.position.set(WALL_STEP_X + (COURT_L - WALL_STEP_X)/2, TEJ_H_INNER + lwH2/2, COURT_W + 0.15);
-scene.add(lw2);
-
-const stepFace = box(0.3, oreilleH, 0.3, mat.oreille);
-stepFace.position.set(WALL_STEP_X, WALL_H_BACK + oreilleH/2, COURT_W + 0.15);
-scene.add(stepFace);
-
-// ── Mur DROIT ──
-const rw1 = box(WALL_STEP_X, WALL_H_FRONT, 0.08, mat.glass);
-rw1.position.set(WALL_STEP_X/2, WALL_H_FRONT/2, -0.04);
-scene.add(rw1);
-const rw2 = box(COURT_L - WALL_STEP_X, WALL_H_BACK, 0.08, mat.glass);
-rw2.position.set(WALL_STEP_X + (COURT_L - WALL_STEP_X)/2, WALL_H_BACK/2, -0.04);
-scene.add(rw2);
-
-const oreilleRightMat = mat.oreille.clone();
-const oreilleRight = box(WALL_STEP_X, oreilleH, 0.08, oreilleRightMat);
-oreilleRight.position.set(WALL_STEP_X/2, WALL_H_BACK + oreilleH/2, -0.04);
-scene.add(oreilleRight);
-
-// ── Fraile ──
-const fraileGeo = new THREE.BufferGeometry();
-fraileGeo.setAttribute('position', new THREE.Float32BufferAttribute([
-  0, 0, FRAILE_W,           FRAILE_W, 0, 0,           FRAILE_W, WALL_H_FRONT, 0,
-  0, 0, FRAILE_W,           FRAILE_W, WALL_H_FRONT, 0, 0, WALL_H_FRONT, FRAILE_W,
-], 3));
-fraileGeo.computeVertexNormals();
-const fraileMesh = new THREE.Mesh(fraileGeo, mat.fraile);
-fraileMesh.castShadow = true;
-scene.add(fraileMesh);
-
-// ── Tejadillo ──
-const netLen = NET_END - NET_START;
-const tejWallBot = box(netLen, 0.95, 0.1, mat.tejWall);
-tejWallBot.position.set(NET_START + netLen/2, 0.475, TEJ_Z);
-scene.add(tejWallBot);
-
-const netPlaneMat = mat.net.clone();
-netPlaneMat.emissive = new THREE.Color(0x000000);
-const netPlane = box(netLen, 0.85, 0.02, netPlaneMat);
-netPlane.position.set(NET_START + netLen/2, 0.95 + 0.425, TEJ_Z);
-scene.add(netPlane);
-
-const roofGeo = new THREE.BufferGeometry();
-roofGeo.setAttribute('position', new THREE.Float32BufferAttribute([
-  0, TEJ_H_OUTER, TEJ_Z,         COURT_L, TEJ_H_OUTER, TEJ_Z,         COURT_L, TEJ_H_INNER, COURT_W,
-  0, TEJ_H_OUTER, TEJ_Z,         COURT_L, TEJ_H_INNER, COURT_W,       0, TEJ_H_INNER, COURT_W,
-], 3));
-roofGeo.computeVertexNormals();
-const roofMesh = new THREE.Mesh(roofGeo, mat.tejRoof);
-scene.add(roofMesh);
-
-// ── Balle ──
-const ball = new THREE.Mesh(
-  new THREE.SphereGeometry(0.06, 16, 16),
-  new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0x444444, roughness: 0.3 })
-);
-ball.castShadow = true;
-scene.add(ball);
-
-const trailPoints = [];
-const trailGeo = new THREE.BufferGeometry();
-const trailLine = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: 0xccff00, transparent: true, opacity: 0.5 }));
-scene.add(trailLine);
-
-// ── Physique & Trajectoire ──
-let ballPos = new THREE.Vector3();
-let ballVel = new THREE.Vector3();
-let ballPath = [];
-let ballTime = 0;
-let isPaused = false;
-let simSpeed = 1.0;
-let isNetHit = false;
-let isOreilleHit = false;
-let isChapaHit = false; // Flag pour les chapas
-
-function createSprite(text, pos, color, size) {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  canvas.width = 128; canvas.height = 64;
-  ctx.fillStyle = color; ctx.font = 'bold 48px sans-serif';
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(text, 64, 32);
-  const tex = new THREE.CanvasTexture(canvas);
-  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.7 });
-  const sp = new THREE.Sprite(mat);
-  sp.position.set(...pos); sp.scale.set(size, size*0.5, 1);
-  return sp;
-}
-
-const alertOreille = createSprite('OREILLE !', [4.5, 7.5, 4.65], '#ff4444', 3);
-alertOreille.visible = false;
-scene.add(alertOreille);
-
-const alertFilet = createSprite('FILET !', [15, 2.5, TEJ_Z], '#ffaa44', 3);
-alertFilet.visible = false;
-scene.add(alertFilet);
-
-// Ajout de l'alerte CHAPA
-const alertChapa = createSprite('CHAPA !', [0, 5, 4.65], '#ffdd00', 3);
-alertChapa.visible = false;
-scene.add(alertChapa);
-
-const shots = [
-  { name: 'Service Court', es: 'Saque Corto', desc: 'Bute contre le frontis, tombe après le 10m.', p: [26, 0.8, 2], h: 178, v: 4, s: 22 },
-  { name: 'Picada', es: 'Picada', desc: 'Coup sec vers le bas du frontis.', p: [20, 1.2, 5], h: 180, v: -10, s: 28 },
-  { name: 'Xare', es: 'Xare', desc: 'Effet courbe vers les filets.', p: [15, 1.0, 4], h: 185, v: 8, s: 20 },
-  { name: 'Rebote', es: 'Rebote', desc: 'Coup puissant vers le mur du fond.', p: [5, 0.7, 3], h: -2, v: 12, s: 30 },
-];
-
+// Variable Globales 3D
+let scene, camera, renderer, controls;
+let ball, trajLine, shadowPlane;
 let currentShotIdx = 0;
+let isPaused = false;
+let speedFactor = 0.5;
+let isCustomMode = false;
+let trajectoryPoints = [];
+let animProgress = 0;
+let customParams = { posX: 15.5, posY: 0.8, posZ: 5.0, angleH: 7, angleV: 25, strength: 20 };
 
-function launchShot(idx) {
-  const s = shots[idx];
-  currentShotIdx = idx;
-  ballPos.set(s.p[0], s.p[1], s.p[2]);
-  const ah = s.h * Math.PI / 180;
-  const av = s.v * Math.PI / 180;
-  ballVel.set(Math.cos(av)*Math.cos(ah), Math.sin(av), Math.cos(av)*Math.sin(ah)).multiplyScalar(s.s);
-  ballPath = [];
-  ballTime = 0;
-  isNetHit = false;
-  isOreilleHit = false;
-  isChapaHit = false;
-  alertOreille.visible = false;
-  alertFilet.visible = false;
-  alertChapa.visible = false;
-  resetZones();
-  updateEditorUI();
+// Cibles Caméra
+const CAM_POSITIONS = {
+  default: { pos: [24, 12, 18], target: [0, 2, 0] },
+  side:    { pos: [0, 4, 15], target: [0, 2, 0] },
+  player:  { pos: [16, 1.6, 5], target: [-14, 2, 0] },
+  gallery: { pos: [-13, 3, 0], target: [5, 1, 0] }
+};
+
+function init() {
+  const container = document.getElementById('container');
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0a0c12);
+
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+
+  // Lumières
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  dirLight.position.set(10, 20, 10);
+  dirLight.castShadow = true;
+  dirLight.shadow.mapSize.width = 2048;
+  dirLight.shadow.mapSize.height = 2048;
+  scene.add(dirLight);
+
+  buildCourt();
+  buildBall();
+  buildUI();
+  setCamera('default');
+
+  window.addEventListener('resize', onWindowResize);
+  setupMobileHandlers();
+
+  calculateTrajectory();
+  animate();
 }
 
-function updateTrajectory(dt) {
-  if (isPaused) return;
-  const steps = 5;
-  const subDt = (dt * simSpeed) / steps;
+function buildCourt() {
+  const group = new THREE.Group();
 
-  for (let i=0; i<steps; i++) {
-    ballVel.y -= 9.81 * subDt;
-    ballVel.multiplyScalar(1 - 0.01 * subDt);
-    ballPos.add(ballVel.clone().multiplyScalar(subDt));
+  // Sol
+  const floorGeo = new THREE.PlaneGeometry(COURT.length, COURT.width);
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e2433, roughness: 0.4 });
+  const floor = new THREE.Mesh(floorGeo, floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  group.add(floor);
 
-    // Collision Frontis (x=0)
-    if (ballPos.x < 0.06) {
-      ballPos.x = 0.06;
-      ballVel.x *= -0.75;
-      checkZoneHit(ballPos);
-      
-      // Détection Chapa Basse Frontis (0.80m - 1.00m)
-      if (ballPos.y >= CHAPA_LOW && ballPos.y <= CHAPA_LOW + 0.20) {
-        isChapaHit = true;
-      }
-      // Détection Chapa Haute Frontis (8.50m - 8.68m)
-      if (ballPos.y >= CHAPA_HIGH && ballPos.y <= CHAPA_HIGH + 0.18) {
-        isChapaHit = true;
-      }
-    }
-    // Rebote (x=28.5)
-    if (ballPos.x > COURT_L - 0.06) {
-      ballPos.x = COURT_L - 0.06;
-      ballVel.x *= -0.7;
-      // Détection Chapa Rebote (5.50m)
-      if (ballPos.y >= CHAPA_REBOTE && ballPos.y <= CHAPA_REBOTE + 0.18) {
-        isChapaHit = true;
-      }
-    }
-    // Sol
-    if (ballPos.y < 0.06) {
-      ballPos.y = 0.06;
-      ballVel.y *= -0.65;
-    }
-    // Murs latéraux (z)
-    if (ballPos.z < 0.06) {
-      ballPos.z = 0.06; ballVel.z *= -0.7;
-      // Chapa latérale droite (Rebote + Oreille)
-      if (ballPos.x > WALL_STEP_X && Math.abs(ballPos.y - (CHAPA_REBOTE+0.09)) < 0.09) isChapaHit = true;
-      if (ballPos.x <= WALL_STEP_X && Math.abs(ballPos.y - (WALL_H_FRONT+0.09)) < 0.09) isChapaHit = true;
-    }
-    if (ballPos.z > COURT_W - 0.06) {
-      ballPos.z = COURT_W - 0.06; ballVel.z *= -0.7;
-      // Chapa latérale gauche
-      if (ballPos.x > WALL_STEP_X && Math.abs(ballPos.y - (CHAPA_REBOTE+0.09)) < 0.09) isChapaHit = true;
-      if (ballPos.x <= WALL_STEP_X && Math.abs(ballPos.y - (WALL_H_FRONT+0.09)) < 0.09) isChapaHit = true;
-    }
+  // Mur de Frontis (Front)
+  const frontGeo = new THREE.PlaneGeometry(COURT.width, COURT.height);
+  const frontMat = new THREE.MeshStandardMaterial({ color: 0x2a3245, roughness: 0.3 });
+  const front = new THREE.Mesh(frontGeo, frontMat);
+  front.position.set(-COURT.length / 2, COURT.height / 2, 0);
+  front.rotation.y = Math.PI / 2;
+  front.receiveShadow = true;
+  group.add(front);
 
-    // Oreilles (Collision proche de x=WALL_STEP_X)
-    if (Math.abs(ballPos.x - WALL_STEP_X) < 0.15 && ballPos.y > WALL_H_BACK) {
-      isOreilleHit = true;
-    }
+  // Ligne de Chapa (LIGNE 0.85m)
+  const chapaGeo = new THREE.PlaneGeometry(COURT.width, 0.08);
+  const chapaMat = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+  const chapa = new THREE.Mesh(chapaGeo, chapaMat);
+  chapa.position.set(-COURT.length / 2 + 0.01, COURT.chapaH, 0);
+  chapa.rotation.y = Math.PI / 2;
+  group.add(chapa);
 
-    // Filets (z=TEJ_Z, entre NET_START et NET_END)
-    if (Math.abs(ballPos.z - TEJ_Z) < 0.1 && ballPos.x > NET_START && ballPos.x < NET_END && ballPos.y < TEJ_H_OUTER) {
-      isNetHit = true;
-    }
+  // Ligne de 5.50m (LIGNE 5.50m)
+  const line550Geo = new THREE.PlaneGeometry(COURT.width, 0.05);
+  const line550Mat = new THREE.MeshBasicMaterial({ color: 0xccaa00 });
+  const line550 = new THREE.Mesh(line550Geo, line550Mat);
+  line550.position.set(-COURT.length / 2 + 5.5, 0.01, 0);
+  line550.rotation.x = -Math.PI / 2;
+  group.add(line550);
+
+  // Planche supérieure (PLANCHE)
+  const plancheGeo = new THREE.BoxGeometry(0.2, 0.4, COURT.width);
+  const plancheMat = new THREE.MeshStandardMaterial({ color: 0x553311, roughness: 0.6 });
+  const planche = new THREE.Mesh(plancheGeo, plancheMat);
+  planche.position.set(-COURT.length / 2 + 0.1, COURT.height - 0.2, 0);
+  group.add(planche);
+
+  scene.add(group);
+}
+
+function buildBall() {
+  const geo = new THREE.SphereGeometry(0.12, 32, 32);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2, metalness: 0.1 });
+  ball = new THREE.Mesh(geo, mat);
+  ball.castShadow = true;
+  scene.add(ball);
+}
+
+function calculateTrajectory() {
+  trajectoryPoints = [];
+  let p, v;
+
+  if (!isCustomMode) {
+    const shot = SHOTS[currentShotIdx];
+    p = new THREE.Vector3(shot.origin.x - COURT.length/2, shot.origin.y, shot.origin.z - COURT.width/2);
+    v = new THREE.Vector3(shot.v0.x, shot.v0.y, shot.v0.z);
+  } else {
+    p = new THREE.Vector3(customParams.posX - COURT.length/2, customParams.posY, customParams.posZ - COURT.width/2);
+    const radH = (customParams.angleH * Math.PI) / 180;
+    const radV = (customParams.angleV * Math.PI) / 180;
+    const speed = customParams.strength;
+    v = new THREE.Vector3(
+      -Math.cos(radV) * Math.cos(radH) * speed,
+      Math.sin(radV) * speed,
+      Math.sin(radH) * speed
+    );
   }
 
-  ball.position.copy(ballPos);
-  ballPath.push(ballPos.clone());
-  if (ballPath.length > 150) ballPath.shift();
-  trailGeo.setFromPoints(ballPath);
+  const dt = 0.016;
+  const g = -9.81;
 
-  if (isOreilleHit) alertOreille.visible = (Math.floor(Date.now()/200)%2 === 0);
-  if (isNetHit) alertFilet.visible = (Math.floor(Date.now()/200)%2 === 0);
-  if (isChapaHit) {
-    alertChapa.position.set(ballPos.x, ballPos.y + 0.5, ballPos.z);
-    alertChapa.visible = (Math.floor(Date.now()/200)%2 === 0);
+  for (let i = 0; i < 200; i++) {
+    trajectoryPoints.push(p.clone());
+    p.x += v.x * dt;
+    p.y += v.y * dt;
+    p.z += v.z * dt;
+    v.y += g * dt;
+
+    // Rebonds simples (Sol & Frontis)
+    if (p.y <= 0.12) { p.y = 0.12; v.y *= -0.75; }
+    if (p.x <= -COURT.length / 2 + 0.12) { p.x = -COURT.length / 2 + 0.12; v.x *= -0.8; }
   }
+
+  updateTrajectoryLine();
+  animProgress = 0;
 }
 
-// ── UI ──
-const panel = document.getElementById('panel');
-shots.forEach((s, i) => {
-  const b = document.createElement('div');
-  b.className = 'shot-btn';
-  b.style.setProperty('--c', i === currentShotIdx ? '#4a7cff' : '#2a2d38');
-  b.innerHTML = `<span class="name">${s.name} <span class="es">(${s.es})</span></span><span class="desc">${s.desc}</span>`;
-  b.onclick = () => {
-    document.querySelectorAll('.shot-btn').forEach(x => x.classList.remove('active'));
-    b.classList.add('active');
-    launchShot(i);
-  };
-  panel.appendChild(b);
-});
-
-document.getElementById('replay').onclick = () => launchShot(currentShotIdx);
-document.getElementById('pause').onclick = () => {
-  isPaused = !isPaused;
-  document.getElementById('pause').textContent = isPaused ? 'Reprendre' : 'Pause';
-};
-document.getElementById('speed').onclick = () => {
-  simSpeed = simSpeed === 1.0 ? 0.3 : (simSpeed === 0.3 ? 2.0 : 1.0);
-  document.getElementById('speed').textContent = `Vitesse : ${simSpeed}x`;
-};
-
-// ── Éditeur ──
-const editToggle = document.getElementById('editToggle');
-const editor = document.getElementById('editor');
-editToggle.onclick = () => {
-  editor.classList.toggle('visible');
-  editToggle.classList.toggle('active');
-};
-
-function updateEditorUI() {
-  const s = shots[currentShotIdx];
-  document.getElementById('ed_pos_x').value = s.p[0];
-  document.getElementById('ed_pos_y').value = s.p[1];
-  document.getElementById('ed_pos_z').value = s.p[2];
-  document.getElementById('ed_angle_h').value = s.h;
-  document.getElementById('ed_angle_v').value = s.v;
-  document.getElementById('ed_strength').value = s.s;
+function updateTrajectoryLine() {
+  if (trajLine) scene.remove(trajLine);
+  const geo = new THREE.BufferGeometry().setFromPoints(trajectoryPoints);
+  const color = isCustomMode ? 0x7ec8ff : SHOTS[currentShotIdx].color;
+  const mat = new THREE.LineBasicMaterial({ color: color, linewidth: 2, transparent: true, opacity: 0.6 });
+  trajLine = new THREE.Line(geo, mat);
+  scene.add(trajLine);
 }
 
-function pullEditorValuesIntoShot() {
-  const s = shots[currentShotIdx];
-  s.p[0] = parseFloat(document.getElementById('ed_pos_x').value);
-  s.p[1] = parseFloat(document.getElementById('ed_pos_y').value);
-  s.p[2] = parseFloat(document.getElementById('ed_pos_z').value);
-  s.h = parseFloat(document.getElementById('ed_angle_h').value);
-  s.v = parseFloat(document.getElementById('ed_angle_v').value);
-  s.s = parseFloat(document.getElementById('ed_strength').value);
-}
-
-function applyEditorToCurrentShot() {
-  pullEditorValuesIntoShot();
-  launchShot(currentShotIdx);
-}
-
-let liveTimeout = null;
-function scheduleLiveApply() {
-  if (!document.getElementById('ed_live').checked) return;
-  if (liveTimeout) clearTimeout(liveTimeout);
-  liveTimeout = setTimeout(applyEditorToCurrentShot, 50);
-}
-
-// ── Initialisation & Boucle ──
-launchShot(0);
-
-const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
-  updateTrajectory(dt);
+
+  if (!isPaused && trajectoryPoints.length > 0) {
+    animProgress += speedFactor;
+    const idx = Math.floor(animProgress) % trajectoryPoints.length;
+    ball.position.copy(trajectoryPoints[idx]);
+  }
+
   controls.update();
   renderer.render(scene, camera);
 }
-animate();
 
-window.addEventListener('resize', () => {
+function setCamera(type) {
+  const c = CAM_POSITIONS[type];
+  if (!c) return;
+  camera.position.set(...c.pos);
+  controls.target.set(...c.target);
+  document.querySelectorAll('#cameras button').forEach(b => b.classList.toggle('active', b.dataset.cam === type));
+}
+
+function buildUI() {
+  const panel = document.getElementById('panel');
+  panel.innerHTML = '';
+  SHOTS.forEach((s, idx) => {
+    const btn = document.createElement('div');
+    btn.className = `shot-btn ${idx === 0 ? 'active' : ''}`;
+    btn.style.setProperty('--c', s.color);
+    btn.innerHTML = `<span class="name">${s.name}</span><span class="es">${s.es}</span><span class="desc">${s.desc}</span>`;
+    btn.onclick = () => {
+      currentShotIdx = idx;
+      document.querySelectorAll('.shot-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+      if (isCustomMode) toggleCustomMode(false);
+      calculateTrajectory();
+    };
+    panel.appendChild(btn);
+  });
+
+  // Listeners Boutons Caméras
+  document.querySelectorAll('#cameras button').forEach(b => {
+    b.onclick = () => setCamera(b.dataset.cam);
+  });
+
+  // Listeners Controles
+  document.getElementById('replay').onclick = () => { animProgress = 0; };
+  document.getElementById('pause').onclick = (e) => {
+    isPaused = !isPaused;
+    e.target.innerText = isPaused ? "▶ Reprendre" : "Pause";
+  };
+  document.getElementById('speed').onclick = (e) => {
+    speedFactor = speedFactor === 0.5 ? 1.0 : (speedFactor === 1.0 ? 0.2 : 0.5);
+    e.target.innerText = `Vitesse : ${speedFactor}x`;
+  };
+  document.getElementById('editToggle').onclick = () => toggleCustomMode(!isCustomMode);
+
+  // Sliders Editeur
+  setupSliders();
+}
+
+function setupSliders() {
+  const bindSlider = (id, valId, unit, prop) => {
+    const el = document.getElementById(id);
+    el.oninput = (e) => {
+      customParams[prop] = parseFloat(e.target.value);
+      document.getElementById(valId).innerText = customParams[prop] + unit;
+      if (isCustomMode) calculateTrajectory();
+    };
+  };
+  bindSlider('sl_strength', 'sv_strength', '', 'strength');
+  bindSlider('sl_pos_x', 'sv_pos_x', ' m', 'posX');
+  bindSlider('sl_pos_z', 'sv_pos_z', ' m', 'posZ');
+  bindSlider('sl_pos_y', 'sv_pos_y', 'm', 'posY');
+  bindSlider('sl_angle_h', 'sv_angle_h', '°', 'angleH');
+  bindSlider('sl_angle_v', 'sv_angle_v', '°', 'angleV');
+}
+
+function toggleCustomMode(enable) {
+  isCustomMode = enable;
+  document.getElementById('editor').classList.toggle('visible', enable);
+  document.getElementById('editToggle').classList.toggle('active', enable);
+  document.body.classList.toggle('editor-open', enable);
+  calculateTrajectory();
+}
+
+function onWindowResize() {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  checkOrientation();
+}
 
-// Caméras
-document.querySelectorAll('[data-cam]').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('[data-cam]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const type = btn.getAttribute('data-cam');
-    if (type === 'default') { camera.position.set(30, 13, 0); controls.target.set(10, 2, 5); }
-    if (type === 'side') { camera.position.set(14, 4, -15); controls.target.set(14, 2, 5); }
-    if (type === 'player') { camera.position.set(30, 1.7, 4.6); controls.target.set(0, 1.7, 4.6); }
-    if (type === 'gallery') { camera.position.set(14, 2.5, 9); controls.target.set(0, 1, 4.6); }
+function setupMobileHandlers() {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile) {
+    document.body.classList.add('mobile-detected');
+    document.getElementById('mobile-banner').style.display = 'block';
+  }
+  document.getElementById('mb-close-btn').onclick = () => {
+    document.getElementById('mobile-banner').style.display = 'none';
   };
-});
+  document.getElementById('rh-dismiss').onclick = () => {
+    document.getElementById('rotate-hint').style.display = 'none';
+  };
+  window.addEventListener('orientationchange', checkOrientation);
+  checkOrientation();
+}
 
+function checkOrientation() {
+  const isLandscape = window.innerWidth > window.innerHeight;
+  document.body.classList.toggle('landscape', isLandscape);
+  if (document.body.classList.contains('mobile-detected')) {
+    document.getElementById('rotate-hint').style.display = isLandscape ? 'none' : 'flex';
+  }
+}
+
+// Lancement au chargement de la page
+window.onload = init;
 </script>
 </body>
 </html>
