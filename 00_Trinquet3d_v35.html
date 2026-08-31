@@ -63,7 +63,6 @@
   #editToggle.active { border-color: #7ec8ff; color: #7ec8ff; }
 
   #editor {
-    /* Remplace #panel au même endroit */
     position: fixed; top: 12px; right: 12px; width: 270px;
     max-height: calc(100vh - 24px); overflow-y: auto;
     scrollbar-width: thin; scrollbar-color: #333 transparent;
@@ -292,13 +291,12 @@
      Ciblé OPPO A16s : 360×800 portrait / 800×360 paysage
   ══════════════════════════════════════════════ */
 
-  /* Bannière mobile décale les éléments */
   body.mobile-detected #cameras { top: 62px; }
   body.mobile-detected #panel   { top: 62px; }
   body.mobile-detected #editor  { top: 62px; }
   body.mobile-detected #title   { display: none; }
 
-  /* ── PORTRAIT : panel/éditeur 44% de largeur à droite ── */
+  /* PORTRAIT */
   body.mobile-detected #panel,
   body.mobile-detected #editor {
     width: 40vw;
@@ -319,7 +317,7 @@
   body.mobile-detected .shot-btn .es   { font-size: .65rem; }
   body.mobile-detected .shot-btn .desc { font-size: .60rem; line-height: 1.25; margin-top: 2px; }
 
-  /* ── PAYSAGE : panel/éditeur 28% de largeur, hauteur 100vh ── */
+  /* PAYSAGE */
   body.mobile-detected.landscape #panel,
   body.mobile-detected.landscape #editor {
     width: 25vw;
@@ -338,7 +336,6 @@
     max-width: calc(75vw - 8px);
     gap: 3px;
   }
-  /* Éditeur paysage : contenu ultra-compact */
   body.mobile-detected.landscape #editor .etitle { font-size: .68rem; margin-bottom: 4px; }
   body.mobile-detected.landscape #editor .grp-label { font-size: .54rem; margin-top: 8px; padding-bottom: 2px; }
   body.mobile-detected.landscape #editor .grp:first-child .grp-label { margin-top: 0; }
@@ -351,10 +348,9 @@
   body.mobile-detected.landscape #editor .btns { gap: 3px; margin-top: 6px; }
   body.mobile-detected.landscape #editor button { font-size: .60rem; padding: 4px 6px; }
 
-  /* Masquer le panel quand l'éditeur est ouvert */
   body.editor-open #panel { display: none !important; }
 
-  /* ── Bannière orientation portrait ── */
+  /* Bannière orientation portrait */
   #rotate-hint {
     display: none;
     position: fixed; inset: 0; z-index: 500;
@@ -466,7 +462,6 @@
 
   </div>
 
-
 </div>
 
 <div id="copyright" style="opacity: 0.75;">
@@ -476,7 +471,7 @@
     <span id="copy-op-val">75%</span>
   </div>
   <div class="copy-cartouche">
-    <img class="copy-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAWwCAYAAAAv1VZUAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oEDw8jG+l43WIAACAASURBVHja7N13VBRp+jbgu2my5CSIIAYwy+BgVsw5xzHnnMY45pwdc9bBnNOYx5wDozIiigkkCCpIzhn6+8Pd/WbntxOquhu6q+/rnD17Zneet7vuequ766HqLRnGVp8EqZEpTACZEUi6FApjKGDMICRMJjMCFCYMQtIMIEMJxiDpA1kfgBlzkPQXshwKmTlzkPQ+1gNkFsxB2h/WkCksGYPkdzP3se65qw8Z1kvxM4sk3wzgbtaR3x9ERKThn9P8qOZ3MXE/E5FG0mMERERERERERETSwoYPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERERERFJDBs+REREREREREQSw4YPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERHRf6RkpjIEIiIJYMOHiIiIiIj+o9bGQWz6EBFJABs+RERERET0HyFxUXBb2xvp2ekMg4hIi+kzAiL6p6KTYhAR9wHRyTFIzU5HVl420nMyYWViAQO5Pkpa2sPZuhTKObjBzNiMgZFkFCoKEZ38BdFJ0YhPS0B8WgKy83ORV5CH9JxMmBmZwkBuAGtTi6//XcIKzjalUNqmNAz1DRggkRq+j2JT4xCbGof49ERk5GSioLAAqdnpkMvksDD5+h1kb2YDO3Nb2JrZb3B28HN+59nERERUfFiw4dIi2Xn5eBy4DWMOzgLsrnN4LaoA8ae2YjbIc+B3FwERAZp3TZ9ToomIiJSGzZ8iLRMWlYakhMyuONDRERaiQ0fIi2W/OUjfj/yGyYfnQ/YOBT7m3A5sQ9wKInb3x6gzv4u2i7m5yO/IF/cIBnpaL1/LtzW9tHKbTY1MtWqrW7+12d8ToxmgEQkYWy4EBER6Yy4+AjcDL6DOyEvyA0A3f/2gPj0BCTGJvC+k+11h3ZCSUuhh5W5n35G/e2jUcfF13L5S562gTcy4PspIknhv46IiIh0wqewIGS8+lDscZ+t11Vb23kQZJBh61jflv7O3Lw8fH77RPyc21vYA12822Pztd3InF7V3G3j4Tsqb+Q34iWSo9kZcE1V4Vd+Q0K/Yf3Ds9hyfbdatrUot0vR9pWc+V8iUg2+RUpERET0D4i5j8YmxqLHRH56jYx3n0Tf2hdwcUP+t+tF1pU+e5uXq4+rI72x+65gX3x364iWP+Z/zMTAEHXdVmvd9pY0H6j3a+B+wY+xsP04+F3xV7f0X02a/pP1r4V0fS1r1x/LbgwF5GgOISLp+g+8+yVz58fMvwAAAABJRU5ErkJggg==">
+    <img class="copy-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABHwAAAWwCAYAAAAv1VZUAAAAAXNSR0IB2cksfwAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+oEDw8jG+l43WIAACAASURBVHja7N13VBRp+jbgu2my5CSIIAYwy+BgVsw5xzHnnMY45pwdc9bBnNOYx5wDozIiigkkCCpIzhn6+8Pd/WbntxOquhu6q+/rnD17Zneet7vuequ766HqLRnGVp8EqZEpTACZEUi6FApjKGDMICRMJjMCFCYMQtIMIEMJxiDpA1kfgBlzkPQXshwKmTlzkPQ+1gNkFsxB2h/WkCksGYPkdzP3se65qw8Z1kvxM4sk3wzgbtaR3x9ERKThn9P8qOZ3MXE/E5FG0mMERERERERERETSwoYPEREREREREZHEsOFDRERERERERCQxbPgQEREREREREUkMGz5ERERERERERBLDhg8RERERERERkcSw4UNEREREREREJDFs+BARERERERERSQwbPkREREREREREEsOGDxERERERERGRxLDhQ0REREREREQkMWz4EBERERHRf6RkpjIEIiIJYMOHiIiIiIj+o9bGQWz6EBFJABs+RERERET0HyFxUXBb2xvp2ekMg4hIi+kzAiL6p6KTYhAR9wHRyTFIzU5HVl420nMyYWViAQO5Pkpa2sPZuhTKObjBzNiMgZFkFCoKEZ38BdFJ0YhPS0B8WgKy83ORV5CH9JxMmBmZwkBuAGtTi6//XcIKzjalUNqmNAz1DRggkRq+j2JT4xCbGof49ERk5GSioLAAqdnpkMvksDD5+h1kb2YDO3Nb2JrZb3B28HN+59nERERUfFiw4dIi2Xn5eBy4DWMOzgLsrnN4LaoA8ae2YjbIc+B3FwERAZp3TZ9ToomIiJSGzZ8iLRMWlYakhMyuONDRERaiQ0fIi2W/OUjfj/yGyYfnQ/YOBT7m3A5sQ9wKInb3x6gzv4u2i7m5yO/IF/cIBnpaL1/LtzW9tHKbTY1MtWqrW7+12d8ToxmgEQkYWy4EBER6Yy4+AjcDL6DOyEvyA0A3f/2gPj0BCTGJvC+k+11h3ZCSUuhh5W5n35G/e2jUcfF13L5S562gTcy4PspIknhv46IiIh0wqewIGS8+lDscZ+t11Vb23kQZJBh61jflv7O3Lw8fH77RPyc21vYA12822Pztd3InF7V3G3j4Tsqb+Q34iWSo9kZcE1V4Vd+Q0K/Yf3Ds9hyfbdatrUot0vR9pWc+V8iUg2+RUpERET0D4i5j8YmxqLHRH56jYx3n0Tf2hdwcUP+t+tF1pU+e5uXq4+rI72x+65gX3x364iWP+Z/zMTAEHXdVmvd9pY0H6j3a+B+wY+xsP04+F3xV7f0X02a/pP1r4V0fS1r1x/LbgwF5GgOISLp+g+8+yVz58fMvwAAAABJRU5ErkJggg==">
     <div class="copy-text">
       <span class="copy-name">Fédération Française de Pelote Basque</span>
       <span class="copy-sub">Plateforme Trinquet 3D</span>
